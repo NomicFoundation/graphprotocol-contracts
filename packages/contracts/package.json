@@ -107,6 +107,7 @@
       "default": "./index.js"
     },
     "./artifacts/*": "./artifacts/*",
+    "./contracts/*": "./contracts/*",
     "./types": "./types/index.ts",
     "./types/*": "./types/*"
   }

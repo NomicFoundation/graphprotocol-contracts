@@ -133,7 +133,7 @@ catalogs:
 overrides:
   '@types/node': ^20.17.50
 
-packageExtensionsChecksum: sha256-anBhQrlJaJ3Z62unAlKotKwV/itS9LEqUbuFem1Cbv8=
+packageExtensionsChecksum: sha256-LuJNv4SMfl/9O258mvaWKblq51Ca4dMRzB0n++jSLOk=
 
 patchedDependencies:
   '@rocketh/read-execute@0.17.8':
@@ -897,13 +897,18 @@ importers:
         version: 5.9.3
 
   packages/horizon:
+    dependenciesMeta:
+      '@graphprotocol/contracts':
+        injected: true
+      '@graphprotocol/interfaces':
+        injected: true
     devDependencies:
       '@graphprotocol/contracts':
         specifier: workspace:^
         version: link:../contracts
       '@graphprotocol/interfaces':
         specifier: workspace:^
-        version: link:../interfaces
+        version: file:packages/interfaces(@openzeppelin/contracts@5.4.0)
       '@graphprotocol/toolshed':
         specifier: workspace:^
         version: link:../toolshed
@@ -942,7 +947,7 @@ importers:
         version: 5.4.0(@openzeppelin/contracts@5.4.0)
       '@openzeppelin/foundry-upgrades':
         specifier: 0.4.0
-        version: 0.4.0(@openzeppelin/defender-deploy-client-cli@0.0.1-alpha.10(encoding@0.1.13))(@openzeppelin/upgrades-core@1.44.1)
+        version: 0.4.0(@openzeppelin/contracts-upgradeable@5.4.0(@openzeppelin/contracts@5.4.0))(@openzeppelin/contracts@5.4.0)(@openzeppelin/defender-deploy-client-cli@0.0.1-alpha.10(encoding@0.1.13))(@openzeppelin/upgrades-core@1.44.1)
       '@tenderly/hardhat-tenderly':
         specifier: ^1.11.0
         version: 1.11.0(@types/node@20.19.14)(bufferutil@4.0.9)(encoding@0.1.13)(hardhat@2.28.6(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@20.19.14)(typescript@5.9.3))(typescript@5.9.3)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
@@ -1216,7 +1221,7 @@ importers:
         version: 5.4.0(@openzeppelin/contracts@5.4.0)
       '@openzeppelin/foundry-upgrades':
         specifier: 0.4.0
-        version: 0.4.0(@openzeppelin/defender-deploy-client-cli@0.0.1-alpha.10(encoding@0.1.13))(@openzeppelin/upgrades-core@1.44.1)
+        version: 0.4.0(@openzeppelin/contracts-upgradeable@5.4.0(@openzeppelin/contracts@5.4.0))(@openzeppelin/contracts@5.4.0)(@openzeppelin/defender-deploy-client-cli@0.0.1-alpha.10(encoding@0.1.13))(@openzeppelin/upgrades-core@1.44.1)
       '@tenderly/hardhat-tenderly':
         specifier: ^1.11.0
         version: 1.11.0(@types/node@20.19.14)(bufferutil@4.0.9)(encoding@0.1.13)(hardhat@2.28.6(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@20.19.14)(typescript@5.9.3))(typescript@5.9.3)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
@@ -3024,6 +3029,11 @@ packages:
   '@graphprotocol/contracts@7.2.1':
     resolution: {integrity: sha512-Ge2RD5QoEeSabCzdlMG3DT1mdsTGaD3aqxDsxRWwDx9nejudkrTlhjTTRAGVtBkfxlEy7P4Kxejr+fZmK29yRg==}
 
+  '@graphprotocol/interfaces@file:packages/interfaces':
+    resolution: {directory: packages/interfaces, type: directory}
+    peerDependencies:
+      '@openzeppelin/contracts': 3.4.2 || ^5.0.2
+
   '@graphprotocol/pino-sentry-simple@0.7.1':
     resolution: {integrity: sha512-iccKFdFBjarSp8/liXuK1EtGq8Vwn118tqymbOJBxblecRsi4rOebk63qnL+dK/a0IvxH6h2+RjjWDbRt7UsUA==}
     engines: {node: '>=10'}
@@ -3893,8 +3903,15 @@ packages:
   '@openzeppelin/foundry-upgrades@0.4.0':
     resolution: {integrity: sha512-x9wxogNteR5rdDzh5d/XnINR+ncUdPsCLWud99ULCa1pNNqRVPYMadr6iEVmjdTEy/4keIgbHwLB0rw2zXiRyQ==}
     peerDependencies:
+      '@openzeppelin/contracts': '*'
+      '@openzeppelin/contracts-upgradeable': '*'
       '@openzeppelin/defender-deploy-client-cli': 0.0.1-alpha.10
       '@openzeppelin/upgrades-core': ^1.37.0
+    peerDependenciesMeta:
+      '@openzeppelin/contracts':
+        optional: true
+      '@openzeppelin/contracts-upgradeable':
+        optional: true
 
   '@openzeppelin/hardhat-upgrades@1.28.0':
     resolution: {integrity: sha512-7sb/Jf+X+uIufOBnmHR0FJVWuxEs2lpxjJnLNN6eCJCP8nD0v+Ot5lTOW2Qb/GFnh+fLvJtEkhkowz4ZQ57+zQ==}
@@ -12966,6 +12983,10 @@ snapshots:
 
   '@graphprotocol/contracts@7.2.1': {}
 
+  '@graphprotocol/interfaces@file:packages/interfaces(@openzeppelin/contracts@5.4.0)':
+    dependencies:
+      '@openzeppelin/contracts': 5.4.0
+
   '@graphprotocol/pino-sentry-simple@0.7.1':
     dependencies:
       '@sentry/node': 5.30.0
@@ -14495,10 +14516,13 @@ snapshots:
       - encoding
       - supports-color
 
-  '@openzeppelin/foundry-upgrades@0.4.0(@openzeppelin/defender-deploy-client-cli@0.0.1-alpha.10(encoding@0.1.13))(@openzeppelin/upgrades-core@1.44.1)':
+  '@openzeppelin/foundry-upgrades@0.4.0(@openzeppelin/contracts-upgradeable@5.4.0(@openzeppelin/contracts@5.4.0))(@openzeppelin/contracts@5.4.0)(@openzeppelin/defender-deploy-client-cli@0.0.1-alpha.10(encoding@0.1.13))(@openzeppelin/upgrades-core@1.44.1)':
     dependencies:
       '@openzeppelin/defender-deploy-client-cli': 0.0.1-alpha.10(encoding@0.1.13)
       '@openzeppelin/upgrades-core': 1.44.1
+    optionalDependencies:
+      '@openzeppelin/contracts': 5.4.0
+      '@openzeppelin/contracts-upgradeable': 5.4.0(@openzeppelin/contracts@5.4.0)
 
   '@openzeppelin/hardhat-upgrades@1.28.0(@nomiclabs/hardhat-ethers@2.2.3(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(hardhat@2.28.6(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@20.19.14)(typescript@5.9.3))(typescript@5.9.3)(utf-8-validate@5.0.10)))(@nomiclabs/hardhat-etherscan@3.1.8(hardhat@2.28.6(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@20.19.14)(typescript@5.9.3))(typescript@5.9.3)(utf-8-validate@5.0.10)))(encoding@0.1.13)(ethers@5.8.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(hardhat@2.28.6(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@20.19.14)(typescript@5.9.3))(typescript@5.9.3)(utf-8-validate@5.0.10))':
     dependencies:

@@ -19,6 +19,14 @@
     "typechain-types/**/*",
     "README.md"
   ],
+  "dependenciesMeta": {
+    "@graphprotocol/contracts": {
+      "injected": true
+    },
+    "@graphprotocol/interfaces": {
+      "injected": true
+    }
+  },
   "scripts": {
     "lint": "pnpm lint:ts; pnpm lint:sol; pnpm lint:forge; pnpm lint:md; pnpm lint:json",
     "lint:ts": "eslint --fix --cache '**/*.{js,ts,cjs,mjs,jsx,tsx}'; prettier -w --cache --log-level warn '**/*.{js,ts,cjs,mjs,jsx,tsx}'",
