@@ -1,6 +1,6 @@
 import { BytesLike, ethers } from 'ethers'
 
-import { RAV } from './types'
+import { RAV } from './types.js'
 
 export function encodeRegistrationData(url: string, geoHash: string, rewardsDestination: string) {
   return ethers.AbiCoder.defaultAbiCoder().encode(['string', 'string', 'address'], [url, geoHash, rewardsDestination])

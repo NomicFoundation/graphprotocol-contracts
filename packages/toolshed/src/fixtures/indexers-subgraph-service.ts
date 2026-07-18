@@ -1,6 +1,6 @@
 import { parseEther } from 'ethers'
 
-import { indexers as horizonIndexers } from './indexers'
+import { indexers as horizonIndexers } from './indexers.js'
 
 // Allocation interface
 export interface AllocationData {

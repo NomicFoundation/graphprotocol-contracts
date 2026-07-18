@@ -16,7 +16,7 @@ import type {
   SubgraphNFT,
 } from '@graphprotocol/interfaces'
 
-import type { ContractList } from '../contract'
+import type { ContractList } from '../contract.js'
 
 export const GraphHorizonContractNameList = [
   // @graphprotocol/contracts

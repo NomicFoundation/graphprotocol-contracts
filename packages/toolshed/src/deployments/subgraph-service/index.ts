@@ -1,14 +1,14 @@
-import { HardhatEthersProvider } from '@nomicfoundation/hardhat-ethers/internal/hardhat-ethers-provider'
+import type { HardhatEthersProvider } from '@nomicfoundation/hardhat-ethers/types'
 import type { Provider, Signer } from 'ethers'
 
-import { resolveAddressBook } from '../../lib/resolve'
-import { loadActions } from './actions'
-import { SubgraphServiceAddressBook } from './address-book'
-import type { SubgraphServiceContracts } from './contracts'
+import { resolveAddressBook } from '../../lib/resolve.js'
+import { loadActions } from './actions.js'
+import { SubgraphServiceAddressBook } from './address-book.js'
+import type { SubgraphServiceContracts } from './contracts.js'
 
 export { SubgraphServiceAddressBook }
-export type { SubgraphServiceContractName, SubgraphServiceContracts } from './contracts'
-export { SubgraphServiceContractNameList } from './contracts'
+export type { SubgraphServiceContractName, SubgraphServiceContracts } from './contracts.js'
+export { SubgraphServiceContractNameList } from './contracts.js'
 
 export function loadSubgraphService(addressBookPath: string, chainId: number, provider: HardhatEthersProvider) {
   const addressBook = new SubgraphServiceAddressBook(addressBookPath, chainId)
@@ -26,7 +26,7 @@ export function connectSubgraphService(
   addressBookPath?: string,
 ): SubgraphServiceContracts {
   addressBookPath =
-    addressBookPath ?? resolveAddressBook(require, '@graphprotocol/address-book/subgraph-service/addresses.json')
+    addressBookPath ?? resolveAddressBook(import.meta, '@graphprotocol/address-book/subgraph-service/addresses.json')
   if (!addressBookPath) {
     throw new Error('Address book path not found')
   }

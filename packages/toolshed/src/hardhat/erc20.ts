@@ -1,4 +1,4 @@
-import type { HardhatEthersProvider } from '@nomicfoundation/hardhat-ethers/internal/hardhat-ethers-provider'
+import type { HardhatEthersProvider } from '@nomicfoundation/hardhat-ethers/types'
 import type { Addressable } from 'ethers'
 import { keccak256 } from 'ethers/crypto'
 import { toBeHex, zeroPadValue } from 'ethers/utils'

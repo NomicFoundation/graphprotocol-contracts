@@ -8,7 +8,7 @@ import type {
   SubgraphService,
 } from '@graphprotocol/interfaces'
 
-import type { ContractList } from '../contract'
+import type { ContractList } from '../contract.js'
 
 export const SubgraphServiceContractNameList = [
   // @graphprotocol/contracts

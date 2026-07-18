@@ -1,10 +1,10 @@
 import { Provider, Signer } from 'ethers'
 
-import { assertObject } from '../../lib/assert'
-import { logDebug, logError } from '../../lib/logger'
-import { AddressBook } from '../address-book'
-import type { GraphIssuanceContractName, GraphIssuanceContracts } from './contracts'
-import { GraphIssuanceContractNameList } from './contracts'
+import { assertObject } from '../../lib/assert.js'
+import { logDebug, logError } from '../../lib/logger.js'
+import { AddressBook } from '../address-book.js'
+import type { GraphIssuanceContractName, GraphIssuanceContracts } from './contracts.js'
+import { GraphIssuanceContractNameList } from './contracts.js'
 
 export class GraphIssuanceAddressBook extends AddressBook<number, GraphIssuanceContractName> {
   isContractName(name: string): name is GraphIssuanceContractName {

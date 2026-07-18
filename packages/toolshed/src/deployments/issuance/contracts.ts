@@ -6,7 +6,7 @@ import type {
 } from '@graphprotocol/issuance/types'
 import type { Contract } from 'ethers'
 
-import type { ContractList } from '../contract'
+import type { ContractList } from '../contract.js'
 
 export const GraphIssuanceContractNameList = [
   'DefaultAllocation',

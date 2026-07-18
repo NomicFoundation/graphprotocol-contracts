@@ -1,3 +1,3 @@
-export * from './delegators'
-export * from './indexers'
-export * from './indexers-subgraph-service'
+export * from './delegators.js'
+export * from './indexers.js'
+export * from './indexers-subgraph-service.js'

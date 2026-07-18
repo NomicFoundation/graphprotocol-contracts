@@ -1,6 +1,6 @@
 import { ethers, id } from 'ethers'
 
-import { randomHexBytes } from '../lib/bytes'
+import { randomHexBytes } from '../lib/bytes.js'
 
 // For legacy allocations in the staking contract
 export async function generateLegacyAllocationProof(indexerAddress: string, allocationPrivateKey: string) {

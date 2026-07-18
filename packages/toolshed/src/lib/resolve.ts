@@ -28,8 +28,8 @@ export type ModuleResolver =
  * ```ts
  * // Example 1: Resolve a different file in the same folder
  * // Locates: <node_modules>/@graphprotocol/horizon/addresses.json
- * // Returns: <node_modules>/@graphprotocol/horizon/addresses-hardhat.json
- * resolveAddressBook(import.meta, 'addresses.json', 'addresses-hardhat.json')
+ * // Returns: <node_modules>/@graphprotocol/horizon/addresses-default.json
+ * resolveAddressBook(import.meta, 'addresses.json', 'addresses-default.json')
  * ```
  *
  * ```ts

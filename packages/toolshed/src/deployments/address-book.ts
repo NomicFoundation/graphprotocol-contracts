@@ -1,9 +1,9 @@
 import { Provider, Signer } from 'ethers'
 import fs from 'fs'
 
-import { assertObject } from '../lib/assert'
-import { logDebug, logError, logWarn } from '../lib/logger'
-import { ContractList, loadContract } from './contract'
+import { assertObject } from '../lib/assert.js'
+import { logDebug, logError, logWarn } from '../lib/logger.js'
+import { ContractList, loadContract } from './contract.js'
 
 export type AddressBookJson<ChainId extends number = number, ContractName extends string = string> = Record<
   ChainId,

@@ -75,6 +75,8 @@ localNetwork.json
 arbitrum-addresses-local.json
 addresses-fork.json
 addresses-hardhat.json
+addresses-default.json
+addresses-node.json
 addresses-local*.json
 
 # Keys
@@ -102,6 +104,8 @@ tx-builder-*.json
 **/chain-1377/
 **/horizon-localhost/
 **/horizon-hardhat/
+**/horizon-default/
+**/horizon-node/
 **/subgraph-service-localhost/
 **/subgraph-service-hardhat/
 **/horizon-localNetwork/
