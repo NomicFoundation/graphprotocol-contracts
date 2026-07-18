@@ -11,7 +11,7 @@ import type {
   IRewardsEligibilityReporting,
   IRewardsEligibilityStatus,
   ISendTokens,
-} from '../../types'
+} from '../../types/index.js'
 
 export {
   IIssuanceAllocationAdministration as IssuanceAllocationAdministration,

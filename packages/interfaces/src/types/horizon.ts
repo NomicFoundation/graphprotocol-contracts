@@ -14,7 +14,7 @@ import type {
   IRewardsManagerToolshed,
   IStaking,
   ISubgraphNFT,
-} from '../../types'
+} from '../../types/index.js'
 
 export {
   IControllerToolshed as Controller,

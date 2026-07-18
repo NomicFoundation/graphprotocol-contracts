@@ -1,6 +1,7 @@
 {
   "name": "@graphprotocol/interfaces",
   "version": "0.7.2",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },
@@ -67,22 +68,20 @@
   "devDependencies": {
     "@ethersproject/abi": "5.7.0",
     "@ethersproject/providers": "5.7.2",
-    "@nomicfoundation/hardhat-ethers": "^3.0.0",
-    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "@nomicfoundation/hardhat-verify": "^2.0.0",
+    "@nomicfoundation/hardhat-ethers": "^4.0.14",
+    "@nomicfoundation/hardhat-typechain": "^3.1.1",
     "@openzeppelin/contracts": "3.4.2",
     "@openzeppelin/contracts-upgradeable": "3.4.2",
     "@typechain/ethers-v5": "^10.2.1",
     "@wagmi/cli": "^2.3.1",
     "ethers": "catalog:",
     "ethers-v5": "npm:ethers@5.7.2",
-    "hardhat": "catalog:",
-    "hardhat-ignore-warnings": "catalog:",
+    "hardhat": "^3.9.1",
+    "hardhat-ignore-warnings": "^0.3.0",
     "markdownlint-cli": "catalog:",
     "prettier": "catalog:",
     "prettier-plugin-solidity": "catalog:",
     "solhint": "catalog:",
-    "ts-node": "catalog:",
     "typechain": "^8.3.2",
     "viem": "^2.31.7"
   }
