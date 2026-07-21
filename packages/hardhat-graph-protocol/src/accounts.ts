@@ -10,8 +10,7 @@ import {
   TEN_MILLION,
 } from '@graphprotocol/toolshed'
 import { setGRTBalance } from '@graphprotocol/toolshed/hardhat'
-import type { HardhatEthersProvider } from '@nomicfoundation/hardhat-ethers/internal/hardhat-ethers-provider'
-import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import type { HardhatEthersProvider, HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types'
 import type { Addressable } from 'ethers'
 
 type Accounts = {

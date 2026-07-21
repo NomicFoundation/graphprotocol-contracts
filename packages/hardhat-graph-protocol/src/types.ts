@@ -1,8 +1,7 @@
 import type { GraphAccounts } from '@graphprotocol/toolshed'
 import type { GraphDeploymentName, GraphDeployments } from '@graphprotocol/toolshed/deployments'
 import { GraphDeploymentsList } from '@graphprotocol/toolshed/deployments'
-import type { HardhatEthersProvider } from '@nomicfoundation/hardhat-ethers/internal/hardhat-ethers-provider'
-import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import type { HardhatEthersProvider, HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types'
 export type GraphDeploymentOptions = {
   [deployment in GraphDeploymentName]?: string
 }
@@ -28,5 +27,5 @@ export type GraphRuntimeEnvironment = GraphDeployments & {
 }
 
 export function isGraphDeployment(deployment: unknown): deployment is GraphDeploymentName {
-  return typeof deployment === 'string' && GraphDeploymentsList.includes(deployment as GraphDeploymentName)
+  return typeof deployment === 'string' && GraphDeploymentsList.some((name) => name === deployment)
 }

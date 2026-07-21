@@ -1,23 +1,28 @@
 import type { GraphDeploymentName } from '@graphprotocol/toolshed/deployments'
 import fs from 'fs'
-import type { HardhatRuntimeEnvironment } from 'hardhat/types'
 import path from 'path'
 
-import { GraphPluginError } from './error'
-import { logDebug } from './logger'
-import type { GraphRuntimeEnvironmentOptions } from './types'
+import { GraphPluginError } from './error.js'
+import { logDebug } from './logger.js'
+import type { GraphDeploymentOptions, GraphRuntimeEnvironmentOptions } from './types.js'
+
+export interface AddressBookResolutionContext {
+  networkConfig: { deployments?: GraphDeploymentOptions } | undefined
+  graphConfig: GraphRuntimeEnvironmentOptions | undefined
+  graphPath: string
+}
 
 export function getAddressBookPath(
   deployment: GraphDeploymentName,
-  hre: HardhatRuntimeEnvironment,
+  ctx: AddressBookResolutionContext,
   opts: GraphRuntimeEnvironmentOptions,
 ): string | undefined {
   const optsPath = getPath(opts.deployments?.[deployment])
-  const networkPath = getPath(hre.network.config.deployments?.[deployment])
-  const globalPath = getPath(hre.config.graph?.deployments?.[deployment])
+  const networkPath = getPath(ctx.networkConfig?.deployments?.[deployment])
+  const globalPath = getPath(ctx.graphConfig?.deployments?.[deployment])
 
   logDebug(`Getting address book path...`)
-  logDebug(`Graph base dir: ${hre.config.paths.graph}`)
+  logDebug(`Graph base dir: ${ctx.graphPath}`)
   logDebug(`1) opts: ${optsPath}`)
   logDebug(`2) network: ${networkPath}`)
   logDebug(`3) global: ${globalPath}`)
@@ -27,7 +32,7 @@ export function getAddressBookPath(
     return undefined
   }
 
-  const normalizedAddressBookPath = normalizePath(addressBookPath, hre.config.paths.graph)
+  const normalizedAddressBookPath = normalizePath(addressBookPath, ctx.graphPath)
   logDebug(`Address book path: ${normalizedAddressBookPath}`)
 
   if (!fs.existsSync(normalizedAddressBookPath)) {

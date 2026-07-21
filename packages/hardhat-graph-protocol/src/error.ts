@@ -1,6 +1,6 @@
 import { HardhatPluginError } from 'hardhat/plugins'
 
-import { logError } from './logger'
+import { logError } from './logger.js'
 
 export class GraphPluginError extends HardhatPluginError {
   constructor(message: string) {
