@@ -74,8 +74,7 @@ describe('GRE usage', function () {
   })
 
   describe('Project using GRE - deployments', function () {
-    // Skipped: the fixture address book contains legacy fields rejected by address book validation
-    it.skip('should load Horizon deployment', async function () {
+    it('should load Horizon deployment', async function () {
       const hre = await createHre(arbitrumSepoliaConfig)
       const connection = await hre.network.create('arbitrumSepolia')
       const graph = await connection.graph()
