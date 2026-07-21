@@ -35,6 +35,13 @@ describe('getAddressBookPath', function () {
 
   it('should use the opts deployments if available', function () {
     const addressBook = getAddressBookPath('horizon', makeCtx(), {
+      deployments: { horizon: { addressBook: 'addresses-opt.json' } },
+    })
+    expect(path.basename(addressBook!)).to.equal('addresses-opt.json')
+  })
+
+  it('should use the opts deployments if available - shortcut syntax', function () {
+    const addressBook = getAddressBookPath('horizon', makeCtx(), {
       deployments: { horizon: 'addresses-opt.json' },
     })
     expect(path.basename(addressBook!)).to.equal('addresses-opt.json')
@@ -52,9 +59,15 @@ describe('getAddressBookPath', function () {
   })
 
   it('should use the network config deployments if no opts are given', function () {
-    const ctx = makeCtx({ networkConfig: { deployments: { horizon: 'addresses-network.json' } } })
+    const ctx = makeCtx({ networkConfig: { deployments: { horizon: { addressBook: 'addresses-network.json' } } } })
     const addressBook = getAddressBookPath('horizon', ctx, {})
     expect(path.basename(addressBook!)).to.equal('addresses-network.json')
+  })
+
+  it('should use the network config deployments - shortcut syntax', function () {
+    const ctx = makeCtx({ networkConfig: { deployments: { horizon: 'addresses-network-short.json' } } })
+    const addressBook = getAddressBookPath('horizon', ctx, {})
+    expect(path.basename(addressBook!)).to.equal('addresses-network-short.json')
   })
 
   it('should prefer the network config over the global config', function () {
@@ -67,8 +80,14 @@ describe('getAddressBookPath', function () {
   })
 
   it('should use the global config deployments as a fallback', function () {
-    const ctx = makeCtx({ graphConfig: { deployments: { horizon: 'addresses-global.json' } } })
+    const ctx = makeCtx({ graphConfig: { deployments: { horizon: { addressBook: 'addresses-global.json' } } } })
     const addressBook = getAddressBookPath('horizon', ctx, {})
     expect(path.basename(addressBook!)).to.equal('addresses-global.json')
+  })
+
+  it('should use the global config deployments - shortcut syntax', function () {
+    const ctx = makeCtx({ graphConfig: { deployments: { horizon: 'addresses-global-short.json' } } })
+    const addressBook = getAddressBookPath('horizon', ctx, {})
+    expect(path.basename(addressBook!)).to.equal('addresses-global-short.json')
   })
 })

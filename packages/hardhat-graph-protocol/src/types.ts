@@ -2,8 +2,13 @@ import type { GraphAccounts } from '@graphprotocol/toolshed'
 import type { GraphDeploymentName, GraphDeployments } from '@graphprotocol/toolshed/deployments'
 import { GraphDeploymentsList } from '@graphprotocol/toolshed/deployments'
 import type { HardhatEthersProvider, HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types'
+// Address books can be specified as a plain path (shortcut syntax) or an object
 export type GraphDeploymentOptions = {
-  [deployment in GraphDeploymentName]?: string
+  [deployment in GraphDeploymentName]?:
+    | string
+    | {
+        addressBook: string
+      }
 }
 
 export type GraphRuntimeEnvironmentOptions = {
