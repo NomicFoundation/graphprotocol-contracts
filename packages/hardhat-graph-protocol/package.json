@@ -37,7 +37,7 @@
     "lint:md": "markdownlint --fix --ignore-path ../../.gitignore '**/*.md'; prettier -w --cache --log-level warn '**/*.md'",
     "lint:json": "prettier -w --cache --log-level warn '**/*.json'",
     "test": "pnpm build && pnpm test:self",
-    "test:self": "mocha --exit --recursive 'test/**/*.test.ts'",
+    "test:self": "NODE_OPTIONS='--import tsx' mocha --exit --recursive --timeout 6000 'test/**/*.test.ts'",
     "prepublishOnly": "pnpm run build"
   },
   "files": [

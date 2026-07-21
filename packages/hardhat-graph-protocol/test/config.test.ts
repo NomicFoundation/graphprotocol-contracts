@@ -1,73 +1,74 @@
+import { fileURLToPath } from 'node:url'
+
 import { expect } from 'chai'
 import path from 'path'
 
-import { getAddressBookPath } from '../src/config'
-import { loadHardhatContext } from './helpers'
+import type { AddressBookResolutionContext } from '../src/config.js'
+import { getAddressBookPath } from '../src/config.js'
 
-describe('GRE init functions', function () {
-  // No address book - should throw
-  describe('getAddressBookPath', function () {
-    it('should return undefined if no address book is specified', function () {
-      this.hre = loadHardhatContext('default-config', 'mainnet')
-      expect(getAddressBookPath('horizon', this.hre, {})).to.be.undefined
-    })
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const filesDir = path.join(__dirname, 'fixtures', 'files')
 
-    it("should throw if address book doesn't exist", function () {
-      this.hre = loadHardhatContext('invalid-address-book', 'mainnet')
-      expect(() => getAddressBookPath('horizon', this.hre, {})).to.throw(/Address book not found: /)
-    })
+function makeCtx(overrides: Partial<AddressBookResolutionContext> = {}): AddressBookResolutionContext {
+  return {
+    networkConfig: undefined,
+    graphConfig: undefined,
+    graphPath: filesDir,
+    ...overrides,
+  }
+}
 
-    // Address book via opts should be used
-    it('should use opts parameter if available', function () {
-      this.hre = loadHardhatContext('network-address-book', 'mainnet')
-      const addressBook = getAddressBookPath('horizon', this.hre, {
-        deployments: {
-          horizon: 'addresses-opt.json',
-        },
-      })
-      expect(path.basename(addressBook!)).to.equal('addresses-opt.json')
-    })
+describe('getAddressBookPath', function () {
+  it('should return undefined if no address book is specified', function () {
+    expect(getAddressBookPath('horizon', makeCtx(), {})).to.be.undefined
+  })
 
-    it('should use opts parameter if available - shortcut syntax', function () {
-      this.hre = loadHardhatContext('network-address-book', 'mainnet')
-      const addressBook = getAddressBookPath('horizon', this.hre, {
-        deployments: {
-          horizon: 'addresses-opt.json',
-        },
-      })
-      expect(path.basename(addressBook!)).to.equal('addresses-opt.json')
-    })
+  it("should throw if the address book file doesn't exist", function () {
+    const ctx = makeCtx({ graphConfig: { deployments: { horizon: 'addresses-invalid.json' } } })
+    expect(() => getAddressBookPath('horizon', ctx, {})).to.throw(/Address book not found: /)
+  })
 
-    // Address book via network config should be used
-    it('should use HH network config', function () {
-      this.hre = loadHardhatContext('network-address-book', 'mainnet')
-      const addressBook = getAddressBookPath('horizon', this.hre, {})
-      expect(path.basename(addressBook!)).to.equal('addresses-network.json')
-    })
+  it('should resolve relative paths against the graph path', function () {
+    const ctx = makeCtx({ graphConfig: { deployments: { horizon: 'addresses-global.json' } } })
+    expect(getAddressBookPath('horizon', ctx, {})).to.equal(path.join(filesDir, 'addresses-global.json'))
+  })
 
-    it('should use HH network config - shortcut syntax', function () {
-      this.hre = loadHardhatContext('network-address-book', 'mainnet')
-      if (this.hre.network.config.deployments) {
-        this.hre.network.config.deployments.horizon = 'addresses-network-short.json'
-      }
-      const addressBook = getAddressBookPath('horizon', this.hre, {})
-      expect(path.basename(addressBook!)).to.equal('addresses-network-short.json')
+  it('should use the opts deployments if available', function () {
+    const addressBook = getAddressBookPath('horizon', makeCtx(), {
+      deployments: { horizon: 'addresses-opt.json' },
     })
+    expect(path.basename(addressBook!)).to.equal('addresses-opt.json')
+  })
 
-    // Address book via global config should be used
-    it('should use HH global config', function () {
-      this.hre = loadHardhatContext('global-address-book', 'mainnet')
-      const addressBook = getAddressBookPath('horizon', this.hre, {})
-      expect(path.basename(addressBook!)).to.equal('addresses-global.json')
+  it('should prefer opts over network and global config', function () {
+    const ctx = makeCtx({
+      networkConfig: { deployments: { horizon: 'addresses-network.json' } },
+      graphConfig: { deployments: { horizon: 'addresses-global.json' } },
     })
+    const addressBook = getAddressBookPath('horizon', ctx, {
+      deployments: { horizon: 'addresses-opt.json' },
+    })
+    expect(path.basename(addressBook!)).to.equal('addresses-opt.json')
+  })
 
-    it('should use HH global config - shortcut syntax', function () {
-      this.hre = loadHardhatContext('global-address-book', 'mainnet')
-      if (this.hre.config.graph.deployments) {
-        this.hre.config.graph.deployments.horizon = 'addresses-global-short.json'
-      }
-      const addressBook = getAddressBookPath('horizon', this.hre, {})
-      expect(path.basename(addressBook!)).to.equal('addresses-global-short.json')
+  it('should use the network config deployments if no opts are given', function () {
+    const ctx = makeCtx({ networkConfig: { deployments: { horizon: 'addresses-network.json' } } })
+    const addressBook = getAddressBookPath('horizon', ctx, {})
+    expect(path.basename(addressBook!)).to.equal('addresses-network.json')
+  })
+
+  it('should prefer the network config over the global config', function () {
+    const ctx = makeCtx({
+      networkConfig: { deployments: { horizon: 'addresses-network.json' } },
+      graphConfig: { deployments: { horizon: 'addresses-global.json' } },
     })
+    const addressBook = getAddressBookPath('horizon', ctx, {})
+    expect(path.basename(addressBook!)).to.equal('addresses-network.json')
+  })
+
+  it('should use the global config deployments as a fallback', function () {
+    const ctx = makeCtx({ graphConfig: { deployments: { horizon: 'addresses-global.json' } } })
+    const addressBook = getAddressBookPath('horizon', ctx, {})
+    expect(path.basename(addressBook!)).to.equal('addresses-global.json')
   })
 })
