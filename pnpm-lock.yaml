@@ -224,6 +224,13 @@ importers:
         version: 3.8.1
 
   packages/contracts:
+    dependencies:
+      '@graphprotocol/interfaces':
+        specifier: workspace:^
+        version: link:../interfaces
+    dependenciesMeta:
+      '@graphprotocol/interfaces':
+        injected: true
     devDependencies:
       '@arbitrum/sdk':
         specifier: ~3.1.13
@@ -249,9 +256,6 @@ importers:
       '@graphprotocol/common-ts':
         specifier: ^1.8.3
         version: 1.8.7(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10)
-      '@graphprotocol/interfaces':
-        specifier: workspace:^
-        version: link:../interfaces
       '@nomicfoundation/hardhat-network-helpers':
         specifier: ^1.0.0
         version: 1.1.0(hardhat@2.28.6(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@20.19.14)(typescript@5.9.3))(typescript@5.9.3)(utf-8-validate@5.0.10))
@@ -896,7 +900,7 @@ importers:
     devDependencies:
       '@graphprotocol/contracts':
         specifier: workspace:^
-        version: link:../contracts
+        version: file:packages/contracts(@openzeppelin/contracts@5.4.0)
       '@graphprotocol/interfaces':
         specifier: workspace:^
         version: file:packages/interfaces(@openzeppelin/contracts@5.4.0)
@@ -3010,6 +3014,11 @@ packages:
 
   '@graphprotocol/contracts@7.2.1':
     resolution: {integrity: sha512-Ge2RD5QoEeSabCzdlMG3DT1mdsTGaD3aqxDsxRWwDx9nejudkrTlhjTTRAGVtBkfxlEy7P4Kxejr+fZmK29yRg==}
+
+  '@graphprotocol/contracts@file:packages/contracts':
+    resolution: {directory: packages/contracts, type: directory}
+    peerDependencies:
+      '@openzeppelin/contracts': 3.4.2 || ^5.0.2
 
   '@graphprotocol/interfaces@file:packages/interfaces':
     resolution: {directory: packages/interfaces, type: directory}
@@ -13018,6 +13027,11 @@ snapshots:
       - utf-8-validate
 
   '@graphprotocol/contracts@7.2.1': {}
+
+  '@graphprotocol/contracts@file:packages/contracts(@openzeppelin/contracts@5.4.0)':
+    dependencies:
+      '@graphprotocol/interfaces': file:packages/interfaces(@openzeppelin/contracts@5.4.0)
+      '@openzeppelin/contracts': 5.4.0
 
   '@graphprotocol/interfaces@file:packages/interfaces(@openzeppelin/contracts@5.4.0)':
     dependencies:

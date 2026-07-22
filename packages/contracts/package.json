@@ -50,6 +50,17 @@
     "index.js",
     "index.d.ts"
   ],
+  "dependencies": {
+    "@graphprotocol/interfaces": "workspace:^"
+  },
+  "peerDependencies": {
+    "@openzeppelin/contracts": "3.4.2 || ^5.0.2"
+  },
+  "dependenciesMeta": {
+    "@graphprotocol/interfaces": {
+      "injected": true
+    }
+  },
   "devDependencies": {
     "@arbitrum/sdk": "~3.1.13",
     "@defi-wonderland/smock": "^2.4.1",
@@ -59,7 +70,6 @@
     "@ethersproject/bytes": "^5.8.0",
     "@ethersproject/providers": "^5.8.0",
     "@graphprotocol/common-ts": "^1.8.3",
-    "@graphprotocol/interfaces": "workspace:^",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
     "@nomicfoundation/hardhat-verify": "2.1.1",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
