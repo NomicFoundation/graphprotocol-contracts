@@ -2,6 +2,13 @@
 src = 'contracts'
 out = 'build'
 libs = ["node_modules"]
+# Forge-only remappings; forge doesn't auto-generate these (@graphprotocol/ isn't
+# detected, and its forge-std default misses the /src/ suffix). Hardhat resolves
+# both natively, so they don't belong in remappings.txt, which hardhat also reads.
+remappings = [
+    "@graphprotocol/=node_modules/@graphprotocol/",
+    "forge-std/=node_modules/forge-std/src/",
+]
 test = 'test'
 cache_path = 'cache_forge'
 fs_permissions = [{ access = "read", path = "./" }]
