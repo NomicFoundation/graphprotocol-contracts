@@ -35,7 +35,7 @@
     "lint:forge": "forge lint contracts/",
     "lint:md": "markdownlint --fix --ignore-path ../../.gitignore '**/*.md'; prettier -w --cache --log-level warn '**/*.md'",
     "lint:json": "prettier -w --cache --log-level warn '**/*.json'",
-    "clean": "rm -rf build dist cache cache_forge typechain-types",
+    "clean": "rm -rf build dist cache cache_forge coverage typechain-types",
     "build": "pnpm build:dep && pnpm build:self",
     "build:dep": "pnpm --filter '@graphprotocol/horizon^...' run build:self",
     "build:self": "hardhat compile --quiet",
@@ -43,8 +43,8 @@
     "test:self": "hardhat test solidity",
     "test:deployment": "hardhat test test/deployment/*.ts",
     "test:integration": "./scripts/integration",
-    "test:coverage": "FOUNDRY_COVERAGE=1 forge coverage",
-    "test:coverage:self": "mkdir -p coverage && FOUNDRY_COVERAGE=1 forge coverage --report lcov --report-file coverage/lcov.info",
+    "test:coverage": "pnpm build && pnpm test:coverage:self",
+    "test:coverage:self": "hardhat test solidity --coverage",
     "prepublishOnly": "pnpm run build"
   },
   "devDependencies": {
