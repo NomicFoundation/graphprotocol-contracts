@@ -5,12 +5,8 @@ import {
   IgnitionModuleBuilder,
 } from '@nomicfoundation/ignition-core'
 
-import ProxyAdminArtifact from '../../../build/contracts/@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol/ProxyAdmin.json'
-import TransparentUpgradeableProxyArtifact from '../../../build/contracts/@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol/TransparentUpgradeableProxy.json'
-// Importing artifacts from build directory so we have all build artifacts for contract verification
-import DummyArtifact from '../../../build/contracts/contracts/mocks/Dummy.sol/Dummy.json'
-import { ImplementationMetadata } from './implementation'
-import { loadProxyWithABI } from './utils'
+import { ImplementationMetadata } from './implementation.js'
+import { loadProxyWithABI } from './utils.js'
 
 // Deploy a TransparentUpgradeableProxy
 // The TransparentUpgradeableProxy contract creates the ProxyAdmin within its constructor.
@@ -24,22 +20,20 @@ export function deployTransparentUpgradeableProxy(
 
   // The proxy requires a valid contract as initial implementation so we use a dummy
   if (implementation === undefined) {
-    implementation = m.contract('Dummy', DummyArtifact, [], { ...options, id: `OZProxyDummy_${metadata.name}` })
+    implementation = m.contract('Dummy', [], { ...options, id: `OZProxyDummy_${metadata.name}` })
   }
 
-  const Proxy = m.contract(
-    'TransparentUpgradeableProxy',
-    TransparentUpgradeableProxyArtifact,
-    [implementation, deployer, '0x'],
-    { ...options, id: `TransparentUpgradeableProxy_${metadata.name}` },
-  )
+  const Proxy = m.contract('TransparentUpgradeableProxy', [implementation, deployer, '0x'], {
+    ...options,
+    id: `TransparentUpgradeableProxy_${metadata.name}`,
+  })
 
   const proxyAdminAddress = m.readEventArgument(Proxy, 'AdminChanged', 'newAdmin', {
     ...options,
     id: `TransparentUpgradeableProxy_${metadata.name}_AdminChanged`,
   })
 
-  const ProxyAdmin = m.contractAt('ProxyAdmin', ProxyAdminArtifact, proxyAdminAddress, {
+  const ProxyAdmin = m.contractAt('ProxyAdmin', proxyAdminAddress, {
     ...options,
     id: `ProxyAdmin_${metadata.name}`,
   })

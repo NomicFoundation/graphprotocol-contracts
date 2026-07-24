@@ -1,12 +1,10 @@
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
 import { ethers } from 'ethers'
 
-import GraphPaymentsArtifact from '../../../build/contracts/contracts/payments/GraphPayments.sol/GraphPayments.json'
-import PaymentsEscrowArtifact from '../../../build/contracts/contracts/payments/PaymentsEscrow.sol/PaymentsEscrow.json'
-import { MigrateControllerGovernorModule } from '../periphery/Controller'
-import GraphPeripheryModule from '../periphery/periphery'
-import { deployGraphProxy } from '../proxy/GraphProxy'
-import { deployTransparentUpgradeableProxy } from '../proxy/TransparentUpgradeableProxy'
+import { MigrateControllerGovernorModule } from '../periphery/Controller.js'
+import GraphPeripheryModule from '../periphery/periphery.js'
+import { deployGraphProxy } from '../proxy/GraphProxy.js'
+import { deployTransparentUpgradeableProxy } from '../proxy/TransparentUpgradeableProxy.js'
 
 // HorizonStaking, GraphPayments and PaymentsEscrow use GraphDirectory but they are also in the directory.
 // So we need to deploy their proxies, register them in the controller before being able to deploy the implementations
@@ -22,7 +20,6 @@ export default buildModule('HorizonProxies', (m) => {
   // Deploy and register GraphPayments proxy
   const { Proxy: GraphPaymentsProxy, ProxyAdmin: GraphPaymentsProxyAdmin } = deployTransparentUpgradeableProxy(m, {
     name: 'GraphPayments',
-    artifact: GraphPaymentsArtifact,
   })
   m.call(Controller, 'setContractProxy', [ethers.keccak256(ethers.toUtf8Bytes('GraphPayments')), GraphPaymentsProxy], {
     id: 'setContractProxy_GraphPayments',
@@ -31,7 +28,6 @@ export default buildModule('HorizonProxies', (m) => {
   // Deploy and register PaymentsEscrow proxy
   const { Proxy: PaymentsEscrowProxy, ProxyAdmin: PaymentsEscrowProxyAdmin } = deployTransparentUpgradeableProxy(m, {
     name: 'PaymentsEscrow',
-    artifact: PaymentsEscrowArtifact,
   })
   m.call(
     Controller,
@@ -53,13 +49,11 @@ export const MigrateHorizonProxiesDeployerModule = buildModule('HorizonProxiesDe
   // Deploy GraphPayments proxy
   const { Proxy: GraphPaymentsProxy, ProxyAdmin: GraphPaymentsProxyAdmin } = deployTransparentUpgradeableProxy(m, {
     name: 'GraphPayments',
-    artifact: GraphPaymentsArtifact,
   })
 
   // Deploy PaymentsEscrow proxy
   const { Proxy: PaymentsEscrowProxy, ProxyAdmin: PaymentsEscrowProxyAdmin } = deployTransparentUpgradeableProxy(m, {
     name: 'PaymentsEscrow',
-    artifact: PaymentsEscrowArtifact,
   })
 
   return { GraphPaymentsProxy, PaymentsEscrowProxy, GraphPaymentsProxyAdmin, PaymentsEscrowProxyAdmin }

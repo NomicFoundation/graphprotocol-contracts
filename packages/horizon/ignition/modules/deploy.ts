@@ -1,7 +1,7 @@
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
 
-import GraphHorizonCoreModule from './core/core'
-import GraphPeripheryModule from './periphery/periphery'
+import GraphHorizonCoreModule from './core/core.js'
+import GraphPeripheryModule from './periphery/periphery.js'
 
 export default buildModule('GraphHorizon_Deploy', (m) => {
   const {

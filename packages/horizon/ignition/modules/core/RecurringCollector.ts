@@ -1,13 +1,12 @@
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
 
-import RecurringCollectorArtifact from '../../../build/contracts/contracts/payments/collectors/RecurringCollector.sol/RecurringCollector.json'
-import GraphPeripheryModule from '../periphery/periphery'
-import { deployImplementation } from '../proxy/implementation'
+import GraphPeripheryModule from '../periphery/periphery.js'
+import { deployImplementation } from '../proxy/implementation.js'
 import {
   deployTransparentUpgradeableProxy,
   upgradeTransparentUpgradeableProxy,
-} from '../proxy/TransparentUpgradeableProxy'
-import HorizonProxiesModule from './HorizonProxies'
+} from '../proxy/TransparentUpgradeableProxy.js'
+import HorizonProxiesModule from './HorizonProxies.js'
 
 export default buildModule('RecurringCollector', (m) => {
   const { Controller } = m.useModule(GraphPeripheryModule)
@@ -21,7 +20,6 @@ export default buildModule('RecurringCollector', (m) => {
   const { Proxy: RecurringCollectorProxy, ProxyAdmin: RecurringCollectorProxyAdmin } =
     deployTransparentUpgradeableProxy(m, {
       name: 'RecurringCollector',
-      artifact: RecurringCollectorArtifact,
     })
 
   // Deploy RecurringCollector implementation
@@ -29,7 +27,6 @@ export default buildModule('RecurringCollector', (m) => {
     m,
     {
       name: 'RecurringCollector',
-      artifact: RecurringCollectorArtifact,
       constructorArgs: [Controller, revokeSignerThawingPeriod],
     },
     { after: [GraphPeripheryModule, HorizonProxiesModule] },
@@ -43,7 +40,6 @@ export default buildModule('RecurringCollector', (m) => {
     RecurringCollectorImplementation,
     {
       name: 'RecurringCollector',
-      artifact: RecurringCollectorArtifact,
       initArgs: [eip712Name, eip712Version],
     },
   )

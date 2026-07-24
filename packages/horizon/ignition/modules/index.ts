@@ -1,4 +1,4 @@
-export { default as HorizonModule } from './deploy'
-export { deployImplementation } from './proxy/implementation'
-export { deployTransparentUpgradeableProxy } from './proxy/TransparentUpgradeableProxy'
-export { upgradeTransparentUpgradeableProxy } from './proxy/TransparentUpgradeableProxy'
+export { default as HorizonModule } from './deploy.js'
+export { deployImplementation } from './proxy/implementation.js'
+export { deployTransparentUpgradeableProxy } from './proxy/TransparentUpgradeableProxy.js'
+export { upgradeTransparentUpgradeableProxy } from './proxy/TransparentUpgradeableProxy.js'

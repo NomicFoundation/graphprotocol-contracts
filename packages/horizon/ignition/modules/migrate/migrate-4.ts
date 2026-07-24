@@ -2,9 +2,9 @@ import ControllerArtifact from '@graphprotocol/contracts/artifacts/contracts/gov
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
 import { ethers } from 'ethers'
 
-import { MigrateHorizonStakingGovernorModule } from '../core/HorizonStaking'
-import { MigrateCurationGovernorModule } from '../periphery/Curation'
-import { MigrateRewardsManagerGovernorModule } from '../periphery/RewardsManager'
+import { MigrateHorizonStakingGovernorModule } from '../core/HorizonStaking.js'
+import { MigrateCurationGovernorModule } from '../periphery/Curation.js'
+import { MigrateRewardsManagerGovernorModule } from '../periphery/RewardsManager.js'
 
 export default buildModule('GraphHorizon_Migrate_4', (m) => {
   m.useModule(MigrateCurationGovernorModule)

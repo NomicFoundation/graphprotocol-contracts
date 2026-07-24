@@ -3,10 +3,10 @@ import GraphProxyArtifact from '@graphprotocol/contracts/artifacts/contracts/upg
 import GraphProxyAdminArtifact from '@graphprotocol/contracts/artifacts/contracts/upgrades/GraphProxyAdmin.sol/GraphProxyAdmin.json'
 import { buildModule, IgnitionModuleBuilder } from '@nomicfoundation/ignition-core'
 
-import { deployWithGraphProxy, upgradeGraphProxy } from '../proxy/GraphProxy'
-import { deployImplementation } from '../proxy/implementation'
-import ControllerModule from './Controller'
-import GraphProxyAdminModule from './GraphProxyAdmin'
+import { deployWithGraphProxy, upgradeGraphProxy } from '../proxy/GraphProxy.js'
+import { deployImplementation } from '../proxy/implementation.js'
+import ControllerModule from './Controller.js'
+import GraphProxyAdminModule from './GraphProxyAdmin.js'
 
 export default buildModule('RewardsManager', (m) => {
   const { Controller } = m.useModule(ControllerModule)

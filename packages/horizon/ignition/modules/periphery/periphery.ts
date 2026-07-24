@@ -1,14 +1,14 @@
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
 import { ethers } from 'ethers'
 
-import ControllerModule, { MigrateControllerDeployerModule } from './Controller'
-import CurationModule, { MigrateCurationDeployerModule } from './Curation'
-import EpochManagerModule, { MigrateEpochManagerModule } from './EpochManager'
-import GNSModule, { MigrateL2GNSModule } from './GNS'
-import GraphProxyAdminModule, { MigrateGraphProxyAdminModule } from './GraphProxyAdmin'
-import GraphTokenModule, { MigrateGraphTokenModule } from './GraphToken'
-import GraphTokenGatewayModule, { MigrateGraphTokenGatewayModule } from './GraphTokenGateway'
-import RewardsManagerModule, { MigrateRewardsManagerDeployerModule } from './RewardsManager'
+import ControllerModule, { MigrateControllerDeployerModule } from './Controller.js'
+import CurationModule, { MigrateCurationDeployerModule } from './Curation.js'
+import EpochManagerModule, { MigrateEpochManagerModule } from './EpochManager.js'
+import GNSModule, { MigrateL2GNSModule } from './GNS.js'
+import GraphProxyAdminModule, { MigrateGraphProxyAdminModule } from './GraphProxyAdmin.js'
+import GraphTokenModule, { MigrateGraphTokenModule } from './GraphToken.js'
+import GraphTokenGatewayModule, { MigrateGraphTokenGatewayModule } from './GraphTokenGateway.js'
+import RewardsManagerModule, { MigrateRewardsManagerDeployerModule } from './RewardsManager.js'
 
 export default buildModule('GraphHorizon_Periphery', (m) => {
   const { Controller } = m.useModule(ControllerModule)

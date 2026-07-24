@@ -1,10 +1,10 @@
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
 
-import GraphPaymentsModule, { MigrateGraphPaymentsModule } from './GraphPayments'
-import GraphTallyCollectorModule, { MigrateGraphTallyCollectorModule } from './GraphTallyCollector'
-import HorizonStakingModule, { MigrateHorizonStakingDeployerModule } from './HorizonStaking'
-import PaymentsEscrowModule, { MigratePaymentsEscrowModule } from './PaymentsEscrow'
-import RecurringCollectorModule from './RecurringCollector'
+import GraphPaymentsModule, { MigrateGraphPaymentsModule } from './GraphPayments.js'
+import GraphTallyCollectorModule, { MigrateGraphTallyCollectorModule } from './GraphTallyCollector.js'
+import HorizonStakingModule, { MigrateHorizonStakingDeployerModule } from './HorizonStaking.js'
+import PaymentsEscrowModule, { MigratePaymentsEscrowModule } from './PaymentsEscrow.js'
+import RecurringCollectorModule from './RecurringCollector.js'
 
 export default buildModule('GraphHorizon_Core', (m) => {
   const { HorizonStaking, HorizonStakingImplementation } = m.useModule(HorizonStakingModule)

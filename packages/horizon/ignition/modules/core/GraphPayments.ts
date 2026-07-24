@@ -1,10 +1,9 @@
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
 
-import GraphPaymentsArtifact from '../../../build/contracts/contracts/payments/GraphPayments.sol/GraphPayments.json'
-import GraphPeripheryModule, { MigratePeripheryModule } from '../periphery/periphery'
-import { deployImplementation } from '../proxy/implementation'
-import { upgradeTransparentUpgradeableProxy } from '../proxy/TransparentUpgradeableProxy'
-import HorizonProxiesModule, { MigrateHorizonProxiesDeployerModule } from './HorizonProxies'
+import GraphPeripheryModule, { MigratePeripheryModule } from '../periphery/periphery.js'
+import { deployImplementation } from '../proxy/implementation.js'
+import { upgradeTransparentUpgradeableProxy } from '../proxy/TransparentUpgradeableProxy.js'
+import HorizonProxiesModule, { MigrateHorizonProxiesDeployerModule } from './HorizonProxies.js'
 
 export default buildModule('GraphPayments', (m) => {
   const { Controller } = m.useModule(GraphPeripheryModule)
@@ -18,7 +17,6 @@ export default buildModule('GraphPayments', (m) => {
     m,
     {
       name: 'GraphPayments',
-      artifact: GraphPaymentsArtifact,
       constructorArgs: [Controller, protocolPaymentCut],
     },
     { after: [GraphPeripheryModule, HorizonProxiesModule] },
@@ -32,7 +30,6 @@ export default buildModule('GraphPayments', (m) => {
     GraphPaymentsImplementation,
     {
       name: 'GraphPayments',
-      artifact: GraphPaymentsArtifact,
       initArgs: [],
     },
   )
@@ -56,7 +53,6 @@ export const MigrateGraphPaymentsModule = buildModule('GraphPayments', (m) => {
   // Deploy GraphPayments implementation
   const GraphPaymentsImplementation = deployImplementation(m, {
     name: 'GraphPayments',
-    artifact: GraphPaymentsArtifact,
     constructorArgs: [Controller, protocolPaymentCut],
   })
 
@@ -68,7 +64,6 @@ export const MigrateGraphPaymentsModule = buildModule('GraphPayments', (m) => {
     GraphPaymentsImplementation,
     {
       name: 'GraphPayments',
-      artifact: GraphPaymentsArtifact,
       initArgs: [],
     },
   )

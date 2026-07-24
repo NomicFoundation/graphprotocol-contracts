@@ -2,11 +2,10 @@ import GraphProxyArtifact from '@graphprotocol/contracts/artifacts/contracts/upg
 import GraphProxyAdminArtifact from '@graphprotocol/contracts/artifacts/contracts/upgrades/GraphProxyAdmin.sol/GraphProxyAdmin.json'
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
 
-import HorizonStakingArtifact from '../../../build/contracts/contracts/staking/HorizonStaking.sol/HorizonStaking.json'
-import GraphPeripheryModule, { MigratePeripheryModule } from '../periphery/periphery'
-import { upgradeGraphProxy } from '../proxy/GraphProxy'
-import { deployImplementation } from '../proxy/implementation'
-import HorizonProxiesModule from './HorizonProxies'
+import GraphPeripheryModule, { MigratePeripheryModule } from '../periphery/periphery.js'
+import { upgradeGraphProxy } from '../proxy/GraphProxy.js'
+import { deployImplementation } from '../proxy/implementation.js'
+import HorizonProxiesModule from './HorizonProxies.js'
 
 export default buildModule('HorizonStaking', (m) => {
   const { Controller, GraphProxyAdmin } = m.useModule(GraphPeripheryModule)
@@ -20,7 +19,6 @@ export default buildModule('HorizonStaking', (m) => {
     m,
     {
       name: 'HorizonStaking',
-      artifact: HorizonStakingArtifact,
       constructorArgs: [Controller, subgraphServiceAddress],
     },
     { after: [GraphPeripheryModule, HorizonProxiesModule] },
@@ -29,7 +27,6 @@ export default buildModule('HorizonStaking', (m) => {
   // Upgrade proxy to implementation contract
   const HorizonStaking = upgradeGraphProxy(m, GraphProxyAdmin, HorizonStakingProxy, HorizonStakingImplementation, {
     name: 'HorizonStaking',
-    artifact: HorizonStakingArtifact,
   })
   m.call(HorizonStaking, 'setMaxThawingPeriod', [maxThawingPeriod])
   m.call(HorizonStaking, 'setAllowedLockedVerifier', [subgraphServiceAddress, true])
@@ -52,7 +49,6 @@ export const MigrateHorizonStakingDeployerModule = buildModule('HorizonStakingDe
   // Deploy HorizonStaking implementation
   const HorizonStakingImplementation = deployImplementation(m, {
     name: 'HorizonStaking',
-    artifact: HorizonStakingArtifact,
     constructorArgs: [Controller, subgraphServiceAddress],
   })
 
@@ -66,18 +62,15 @@ export const MigrateHorizonStakingGovernorModule = buildModule('HorizonStakingGo
   const horizonStakingImplementationAddress = m.getParameter('horizonStakingImplementationAddress')
   const subgraphServiceAddress = m.getParameter('subgraphServiceAddress')
 
-  const HorizonStakingImplementation = m.contractAt(
-    'HorizonStakingImplementation',
-    HorizonStakingArtifact,
-    horizonStakingImplementationAddress,
-  )
+  const HorizonStakingImplementation = m.contractAt('HorizonStaking', horizonStakingImplementationAddress, {
+    id: 'HorizonStakingImplementation',
+  })
   const HorizonStakingProxy = m.contractAt('HorizonStakingProxy', GraphProxyArtifact, horizonStakingAddress)
   const GraphProxyAdmin = m.contractAt('GraphProxyAdmin', GraphProxyAdminArtifact, graphProxyAdminAddress)
 
   // Upgrade proxy to implementation contract
   const HorizonStaking = upgradeGraphProxy(m, GraphProxyAdmin, HorizonStakingProxy, HorizonStakingImplementation, {
     name: 'HorizonStaking',
-    artifact: HorizonStakingArtifact,
   })
   m.call(HorizonStaking, 'setMaxThawingPeriod', [maxThawingPeriod])
   m.call(HorizonStaking, 'setAllowedLockedVerifier', [subgraphServiceAddress, true])
