@@ -1,7 +1,9 @@
 // scripts/compare-bytecode-immutables-aware.ts
 import fs from 'node:fs'
 
-import { ethers } from 'hardhat'
+import { network } from 'hardhat'
+
+const { ethers } = await network.create()
 
 function stripCborTrailer(hex: string) {
   if (!hex || hex.length < 6) return hex

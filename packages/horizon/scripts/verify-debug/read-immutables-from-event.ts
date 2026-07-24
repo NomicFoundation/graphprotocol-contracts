@@ -1,5 +1,7 @@
 // scripts/read-immutables-from-event.ts
-import { ethers } from 'hardhat'
+import { network } from 'hardhat'
+
+const { ethers } = await network.create()
 
 const ABI = [
   'event GraphDirectoryInitialized(address indexed graphToken,address indexed graphStaking,address graphPayments,address graphEscrow,address indexed graphController,address graphEpochManager,address graphRewardsManager,address graphTokenGateway,address graphProxyAdmin,address graphCuration)',
@@ -43,7 +45,7 @@ async function main() {
     graphTokenGateway,
     graphProxyAdmin,
     graphCuration,
-  ] = ev.args as [string, string, string, string, string, string, string, string, string, string]
+  ]: string[] = ev.args.toArray()
 
   console.log({
     address,

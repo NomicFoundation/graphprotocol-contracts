@@ -7,6 +7,12 @@ import hardhatContractSizer from '@solidstate/hardhat-contract-sizer'
 import { defineConfig } from 'hardhat/config'
 import hardhatGraphProtocol from 'hardhat-graph-protocol'
 
+import { deployMigrateTask, deployProtocolTask } from './tasks/deploy.js'
+import integrationTask from './tasks/test/integration.js'
+import transferOwnershipTask from './tasks/test/ownership.js'
+import seedTask from './tasks/test/seed.js'
+import enableDelegationSlashingTask from './tasks/transitions/delegation-slashing.js'
+
 const baseConfig = hardhatBaseConfig(import.meta)
 
 export default defineConfig({
@@ -18,6 +24,14 @@ export default defineConfig({
     hardhatVerify,
     hardhatContractSizer,
     hardhatKeystore,
+  ],
+  tasks: [
+    deployProtocolTask,
+    deployMigrateTask,
+    seedTask,
+    transferOwnershipTask,
+    integrationTask,
+    enableDelegationSlashingTask,
   ],
   solidity: {
     // Artifacts are only emitted for contracts under `paths.sources` and for npm
