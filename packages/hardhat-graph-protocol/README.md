@@ -7,7 +7,6 @@ A Hardhat plugin for integrating with The Graph Protocol, providing easy access 
 - **Protocol deployments** - Provides a simple interface to interact with protocol contracts without having to configure contract addresses or ABIs.
 - **Transaction logging** - Transactions made via the plugin are automatically awaited and logged.
 - **Accounts** - Provides account management methods for convenience, following protocol conventions for account derivation
-- **Secure accounts** - Integrates seamlessly with [hardhat-secure-accounts](https://www.npmjs.com/package/hardhat-secure-accounts)
 
 ## Installation
 
@@ -21,7 +20,13 @@ pnpm add --dev hardhat-graph-protocol
 Add the plugin to your `hardhat.config.ts`:
 
 ```ts
-import 'hardhat-graph-protocol'
+import hardhatGraphProtocol from 'hardhat-graph-protocol'
+import { defineConfig } from 'hardhat/config'
+
+export default defineConfig({
+  plugins: [hardhatGraphProtocol],
+  // rest of config
+})
 ```
 
 ### Using @graphprotocol/toolshed
@@ -29,15 +34,17 @@ import 'hardhat-graph-protocol'
 To use the plugin you'll need to configure the target networks. We recommend using our base hardhat configuration which can be imported from `@graphprotocol/toolshed`:
 
 ```ts
-import { hardhatBaseConfig, networksUserConfig } from '@graphprotocol/toolshed/hardhat'
-import 'hardhat-graph-protocol'
+import { hardhatBaseConfig } from '@graphprotocol/toolshed/hardhat'
+import hardhatGraphProtocol from 'hardhat-graph-protocol'
+import { defineConfig } from 'hardhat/config'
 
-const config: HardhatUserConfig = {
-  ...networksUserConfig,
+const baseConfig = hardhatBaseConfig(import.meta)
+
+export default defineConfig({
+  ...baseConfig,
+  plugins: [hardhatGraphProtocol],
   // rest of config
-}
-
-export default config // or just "export default hardhatBaseConfig"
+})
 ```
 
 ### Manual configuration
@@ -49,11 +56,12 @@ To manually configure target networks:
 ```ts
   networks: {
     arbitrumOne: {
+      type: 'http',
       chainId: 42161,
-      url: `https://arbitrum-one.infura.io/v3/123456`
+      url: 'https://arbitrum-one.infura.io/v3/123456',
       deployments: {
-        horizon: '/path/to/horizon/addresses.json,
-        subgraphService: 'path/to/subgraph-service/addresses.json'
+        horizon: '/path/to/horizon/addresses.json',
+        subgraphService: '/path/to/subgraph-service/addresses.json'
       }
     },
   }
@@ -79,10 +87,11 @@ Additionally, the plugin adds a new config field to hardhat's config file: `grap
 
 ## Usage
 
-This plugin exposes functionality via a simple API:
+The plugin extends hardhat's network connections with a lazy `graph` accessor:
 
 ```ts
-const graph = hre.graph()
+const connection = await hre.network.connect()
+const graph = await connection.graph()
 ```
 
 See [types.ts](src/types.ts) for graph object interface, expanded version looks like this:
@@ -161,7 +170,7 @@ An example log output:
 Any transactions made using the `contracts` object will be automatically awaited:
 
 ```ts
-const graph = hre.graph()
+const graph = await connection.graph()
 
 // The transaction is automatically awaited, no need to await tx.wait() it
 const tx = await graph.horizon.contracts.GraphToken.approve('0xDEADBEEF', 100)
@@ -173,7 +182,7 @@ await tx.wait(10)
 ### Examples
 
 ```js
-const graph = hre.graph()
+const graph = await connection.graph()
 const { GraphPayments, HorizonStaking, GraphToken } = graph.horizon.contracts
 const { provision } = graph.horizon.actions
 
@@ -225,18 +234,10 @@ Note that these are just helper functions to enforce a convention on which index
 For any of the accounts listed above these are equivalents:
 
 ```ts
-const graph = hre.graph()
+const connection = await hre.network.connect()
+const graph = await connection.graph()
 
 // These two should match
 const governor = await graph.accounts.getGovernor() // By default governor uses derivation index 1
-const governorFromEthers = (await hre.ethers.getSigners())[1]
+const governorFromEthers = (await connection.ethers.getSigners())[1]
 ```
-
-## Development: TypeScript support
-
-When using the plugin from within this monorepo, TypeScript may fail to properly apply the type extension typings. To work around this issue:
-
-1. Create a file at `types/hardhat-graph-protocol.d.ts`
-2. Copy the contents from the `type-extensions.ts` file in this repository into the new file
-
-This will ensure proper TypeScript type support for the plugin.

@@ -39,7 +39,7 @@ cd packages/<package-name> && pnpm test
 # Test a single file (in contracts package)
 cd packages/contracts && npx hardhat test test/<FILE_NAME>.ts
 
-# Run Foundry tests (in horizon/subgraph-service)
+# Run Solidity tests natively on Hardhat 3 (horizon)
 cd packages/horizon && pnpm test
 
 # Run integration tests
@@ -76,7 +76,7 @@ pnpm lint:yaml      # YAML files
    - Contains E2E testing framework for protocol validation
 
 2. **horizon** - Next iteration of The Graph protocol
-   - Uses Hardhat + Foundry for testing
+   - Uses Hardhat 3 for building and testing (forge for linting only)
    - Deployment via Hardhat Ignition
    - Migration path from original protocol
 
@@ -112,7 +112,7 @@ pnpm lint:yaml      # YAML files
 ### Testing Strategy
 
 - **Unit Tests**: TypeScript tests using Hardhat Test Environment
-- **Foundry Tests**: Solidity tests (`.t.sol` files) for horizon and subgraph-service
+- **Solidity Tests**: Solidity tests (`.t.sol` files) - run natively by Hardhat 3 in horizon, by Foundry in subgraph-service
 - **Integration Tests**: Cross-contract interaction testing
 - **E2E Tests**: Full protocol deployment and operation validation
 
@@ -127,18 +127,18 @@ pnpm lint:yaml      # YAML files
 
 ### Working with Horizon
 
-Horizon packages use both Hardhat and Foundry. When developing:
+Horizon is on Hardhat 3; forge is only used for linting. When developing:
 
-1. Use `forge test` for Foundry tests
-2. Use `pnpm test:integration` for integration tests
-3. Set required RPC URLs using `npx hardhat vars set <variable>`
+1. Use `pnpm test:self` (`hardhat test solidity`) for Solidity unit tests
+2. Use `pnpm test:integration` for integration tests - requires `BLOCKCHAIN_RPC` (archive endpoint) and `FORK_BLOCK_NUMBER`
+3. RPC URLs are plain environment variables (e.g. `ARBITRUM_SEPOLIA_RPC`); secrets go in the hardhat keystore
 
 ### Contract Verification
 
 For contract verification on block explorers:
 
 ```bash
-npx hardhat vars set ARBISCAN_API_KEY <your-key>
+npx hardhat keystore set ETHERSCAN_API_KEY
 ```
 
 ### Changesets for Versioning
