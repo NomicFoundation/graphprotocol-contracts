@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 import hre from 'hardhat'
-import { ethers } from 'hardhat'
+
+const { ethers } = await hre.network.getOrCreate()
 
 /**
  * Boundary checks for `CALLBACK_GAS_OVERHEAD` in `RecurringCollector`.
@@ -21,6 +22,24 @@ import { ethers } from 'hardhat'
 describe('RecurringCollector callback gas overhead', () => {
   const MAX_PAYER_CALLBACK_GAS = 1_500_000n
   const TOLERANCE = 500n
+
+  before(async function () {
+    // The margins this suite measures are properties of the compiled bytecode: the
+    // probe's code between gasleft() and the CALL costs more gas without the
+    // optimizer, enough to exceed TOLERANCE. Recompile the probe contracts with the
+    // production profile so the tests measure the bytecode that actually ships.
+    this.timeout(60000)
+    await hre.tasks.getTask('build').run({
+      defaultBuildProfile: 'production',
+      force: true,
+      quiet: true,
+      files: [
+        'contracts/mocks/CallbackGasProbe.sol',
+        'contracts/mocks/GasReportingEligibilityMock.sol',
+        'contracts/mocks/AfterCollectionGasReportingMock.sol',
+      ],
+    })
+  })
 
   /**
    * Each `await probe.probeEligibility(...)` is a fresh ethers transaction, so each one
@@ -167,6 +186,3 @@ describe('RecurringCollector callback gas overhead', () => {
     ).to.be.gte(MAX_PAYER_CALLBACK_GAS - TOLERANCE)
   })
 })
-
-// Suppress lint about unused hre import; some hardhat plugins require it for side effects.
-void hre
