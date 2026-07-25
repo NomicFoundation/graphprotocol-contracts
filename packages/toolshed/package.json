@@ -65,7 +65,7 @@
     "@nomicfoundation/hardhat-ethers": "^4.0.14",
     "debug": "^4.4.0",
     "ethers": "catalog:",
-    "hardhat": "^3.9.1",
+    "hardhat": "^3.11.0",
     "json5": "^2.2.3"
   },
   "devDependencies": {

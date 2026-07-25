@@ -58,13 +58,13 @@
     "chai": "^4.0.0",
     "eslint": "catalog:",
     "ethers": "catalog:",
-    "hardhat": "^3.9.1",
+    "hardhat": "^3.11.0",
     "mocha": "^10.8.2",
     "tsx": "^4.19.0",
     "typescript": "catalog:"
   },
   "peerDependencies": {
     "ethers": "catalog:",
-    "hardhat": "^3.9.1"
+    "hardhat": "^3.11.0"
   }
 }

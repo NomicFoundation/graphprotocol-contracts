@@ -74,7 +74,7 @@
     "ethers": "catalog:",
     "forge-std": "catalog:",
     "glob": "^11.0.1",
-    "hardhat": "^3.9.1",
+    "hardhat": "^3.11.0",
     "hardhat-graph-protocol": "workspace:^",
     "lint-staged": "catalog:",
     "mocha": "^11.0.0",
