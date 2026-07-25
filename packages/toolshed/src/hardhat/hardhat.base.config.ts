@@ -131,11 +131,13 @@ export const networksUserConfig = function (resolver: ModuleResolver): BaseNetwo
       type: 'http',
       chainId: 42161,
       url: ARBITRUM_ONE_RPC,
+      accounts: [configVariable('DEPLOYER_PRIVATE_KEY')],
     },
     arbitrumSepolia: {
       type: 'http',
       chainId: 421614,
       url: ARBITRUM_SEPOLIA_RPC,
+      accounts: [configVariable('DEPLOYER_PRIVATE_KEY')],
     },
   }
 }
