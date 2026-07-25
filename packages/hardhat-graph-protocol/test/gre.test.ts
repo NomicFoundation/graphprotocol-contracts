@@ -89,5 +89,30 @@ describe('GRE usage', function () {
       assert.isObject(graph.horizon.addressBook)
       assert.instanceOf(graph.horizon.addressBook, GraphHorizonAddressBook)
     })
+
+    it('should skip deployments whose address book does not exist', async function () {
+      const hre = await createHre({
+        plugins: [hardhatGraphProtocol],
+        paths: {
+          graph: filesDir,
+        },
+        networks: {
+          arbitrumSepolia: {
+            type: 'http',
+            chainId: 421614,
+            url: 'https://sepolia-rollup.arbitrum.io/rpc',
+            deployments: {
+              horizon: 'addresses-arbsep.json',
+              subgraphService: 'addresses-does-not-exist.json',
+            },
+          },
+        },
+      })
+      const connection = await hre.network.create('arbitrumSepolia')
+      const graph = await connection.graph()
+
+      assert.isDefined(graph.horizon)
+      assert.isUndefined(graph.subgraphService)
+    })
   })
 })

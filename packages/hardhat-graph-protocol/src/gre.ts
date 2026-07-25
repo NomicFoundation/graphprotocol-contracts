@@ -58,7 +58,16 @@ export async function loadGraphRuntimeEnvironment<ChainTypeT extends ChainType |
   for (const deployment of deployments) {
     logDebug(`== Initializing deployment: ${deployment} ==`)
 
-    const addressBookPath = getAddressBookPath(deployment, resolutionCtx, resolvedOpts)
+    // A deployment can be configured but not available on the network - most
+    // commonly the address book file does not exist. Skip it instead of failing
+    // the whole environment so the other deployments remain usable.
+    let addressBookPath: string | undefined
+    try {
+      addressBookPath = getAddressBookPath(deployment, resolutionCtx, resolvedOpts)
+    } catch (error) {
+      logError(`Skipping deployment ${deployment} - Reason: ${error instanceof Error ? error.message : error}`)
+      continue
+    }
     if (addressBookPath === undefined) {
       logError(`Skipping deployment ${deployment} - Reason: address book path does not exist`)
       continue
