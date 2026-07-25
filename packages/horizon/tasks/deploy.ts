@@ -117,21 +117,36 @@ const deployMigrateAction: NewTaskActionFunction<DeployMigrateArgs> = async (arg
 
   // Run migration step
   console.log(`\n========== 🚧 Running migration: step ${step} ==========`)
+  const parameters = patchConfigFlag
+    ? _patchStepConfig(
+        step,
+        HorizonMigrateConfig,
+        graph.horizon.addressBook,
+        graph.subgraphService?.addressBook,
+        args.standalone,
+      )
+    : HorizonMigrateConfig
   const MigrationModule = (await import(`../ignition/modules/migrate/migrate-${step}.js`)).default
   const deployment = await ignition.deploy(MigrationModule, {
     displayUi: true,
-    parameters: patchConfigFlag
-      ? _patchStepConfig(
-          step,
-          HorizonMigrateConfig,
-          graph.horizon.addressBook,
-          graph.subgraphService?.addressBook,
-          args.standalone,
-        )
-      : HorizonMigrateConfig,
+    parameters,
     deploymentId: `horizon-${connection.networkName}`,
     defaultSender: deployer.address,
   })
+
+  // Step 4 also registers the dispute manager on the controller. That requires a
+  // non-zero address, which only exists when the subgraph service is deployed, so
+  // it is skipped in standalone mode.
+  if (step === 4 && !args.standalone) {
+    console.log(`\n========== 🚧 Registering DisputeManager on Controller ==========`)
+    const DisputeManagerModule = (await import('../ignition/modules/migrate/migrate-4-dispute-manager.js')).default
+    await ignition.deploy(DisputeManagerModule, {
+      displayUi: true,
+      parameters,
+      deploymentId: `horizon-${connection.networkName}`,
+      defaultSender: deployer.address,
+    })
+  }
 
   // Update address book
   console.log('\n========== 📖 Updating address book ==========')
