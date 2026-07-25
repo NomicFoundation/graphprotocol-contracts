@@ -1,7 +1,10 @@
-import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types'
 import { expect } from 'chai'
 import hre from 'hardhat'
-import { ethers } from 'hardhat'
+
+const connection = await hre.network.getOrCreate()
+const { ethers } = connection
+const graph = await connection.graph()
 
 describe('Pausing', () => {
   let snapshotId: string
@@ -10,7 +13,6 @@ describe('Pausing', () => {
   let pauseGuardian: HardhatEthersSigner
   let governor: HardhatEthersSigner
 
-  const graph = hre.graph()
   const controller = graph.horizon.contracts.Controller
 
   before(async () => {

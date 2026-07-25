@@ -1,8 +1,11 @@
-import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types'
 import { expect } from 'chai'
 import { zeroPadValue } from 'ethers'
 import hre from 'hardhat'
-import { ethers } from 'hardhat'
+
+const connection = await hre.network.getOrCreate()
+const { ethers } = connection
+const graph = await connection.graph()
 
 const abi = [
   {
@@ -35,7 +38,6 @@ describe('Upgrading contracts', () => {
 
   // Test addresses
   let governor: HardhatEthersSigner
-  const graph = hre.graph()
 
   before(async () => {
     governor = await graph.accounts.getGovernor()
@@ -62,7 +64,7 @@ describe('Upgrading contracts', () => {
     await ProxyAdmin.upgradeAndCall(proxy, graph.horizon.contracts.GraphTallyCollector.target, '0x')
 
     // https:// github.com/OpenZeppelin/openzeppelin-contracts/blob/dbb6104ce834628e473d2173bbc9d47f81a9eec3/contracts/proxy/ERC1967/ERC1967Utils.sol#L37C53-L37C119
-    const implementation = await hre.ethers.provider.getStorage(
+    const implementation = await ethers.provider.getStorage(
       proxy,
       '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc',
     )
@@ -82,7 +84,7 @@ describe('Upgrading contracts', () => {
     await ProxyAdmin.upgradeAndCall(proxy, graph.horizon.contracts.GraphTallyCollector.target, '0x')
 
     // https:// github.com/OpenZeppelin/openzeppelin-contracts/blob/dbb6104ce834628e473d2173bbc9d47f81a9eec3/contracts/proxy/ERC1967/ERC1967Utils.sol#L37C53-L37C119
-    const implementation = await hre.ethers.provider.getStorage(
+    const implementation = await ethers.provider.getStorage(
       proxy,
       '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc',
     )

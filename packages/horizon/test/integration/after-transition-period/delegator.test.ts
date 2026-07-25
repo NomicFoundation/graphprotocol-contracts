@@ -1,10 +1,13 @@
 import { ONE_MILLION, ZERO_ADDRESS } from '@graphprotocol/toolshed'
 import { delegators } from '@graphprotocol/toolshed/fixtures'
 import { setGRTBalance } from '@graphprotocol/toolshed/hardhat'
-import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types'
 import { expect } from 'chai'
 import hre from 'hardhat'
-import { ethers } from 'hardhat'
+
+const connection = await hre.network.getOrCreate()
+const { ethers } = connection
+const graph = await connection.graph()
 
 describe('Delegator', () => {
   let delegator: HardhatEthersSigner
@@ -19,7 +22,6 @@ describe('Delegator', () => {
 
   // Subgraph service address is not set for integration tests
   const subgraphServiceAddress = '0x0000000000000000000000000000000000000000'
-  const graph = hre.graph()
   const { provision, delegate } = graph.horizon.actions
   const horizonStaking = graph.horizon.contracts.HorizonStaking
   const graphToken = graph.horizon.contracts.L2GraphToken
@@ -259,7 +261,7 @@ describe('Delegator', () => {
           horizonStaking
             .connect(delegator)
             ['withdrawDelegated(address,address,uint256)'](serviceProvider.address, verifier, 1n),
-        ).to.not.be.reverted
+        ).to.not.revert(ethers)
 
         // Verify tokens were not transferred to delegator
         expect(await graphToken.balanceOf(delegator.address)).to.equal(

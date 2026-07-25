@@ -1,9 +1,12 @@
 import { ONE_MILLION } from '@graphprotocol/toolshed'
 import { setGRTBalance } from '@graphprotocol/toolshed/hardhat'
-import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types'
 import { expect } from 'chai'
 import hre from 'hardhat'
-import { ethers } from 'hardhat'
+
+const connection = await hre.network.getOrCreate()
+const { ethers } = connection
+const graph = await connection.graph()
 
 describe('Add to delegation pool', () => {
   let serviceProvider: HardhatEthersSigner
@@ -18,7 +21,6 @@ describe('Add to delegation pool', () => {
   const tokens = ethers.parseEther('100000')
   const delegationTokens = ethers.parseEther('1000')
 
-  const graph = hre.graph()
   const { stake, delegate, addToDelegationPool } = graph.horizon.actions
   const horizonStaking = graph.horizon.contracts.HorizonStaking
   const graphToken = graph.horizon.contracts.L2GraphToken
