@@ -95,12 +95,11 @@ abstract contract SubgraphBaseTest is Utils, Constants {
         epochManager = new MockEpochManager();
 
         // GraphPayments predict address
+        // type(X).creationCode is the exact bytecode `new X{salt}` deploys below, unlike
+        // vm.getCode whose artifact may come from a different compilation unit
         bytes32 saltGraphPayments = keccak256("GraphPaymentsSalt");
         bytes32 paymentsHash = keccak256(
-            bytes.concat(
-                vm.getCode("GraphPayments.sol:GraphPayments"),
-                abi.encode(address(controller), PROTOCOL_PAYMENT_CUT)
-            )
+            bytes.concat(type(GraphPayments).creationCode, abi.encode(address(controller), PROTOCOL_PAYMENT_CUT))
         );
         address predictedGraphPaymentsAddress = vm.computeCreate2Address(
             saltGraphPayments,
@@ -112,7 +111,7 @@ abstract contract SubgraphBaseTest is Utils, Constants {
         bytes32 saltEscrow = keccak256("GraphEscrowSalt");
         bytes32 escrowHash = keccak256(
             bytes.concat(
-                vm.getCode("PaymentsEscrow.sol:PaymentsEscrow"),
+                type(PaymentsEscrow).creationCode,
                 abi.encode(address(controller), WITHDRAW_ESCROW_THAWING_PERIOD)
             )
         );

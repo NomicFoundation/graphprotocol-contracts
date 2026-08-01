@@ -26,10 +26,13 @@ export default defineConfig({
     // proxy modules, which need their artifacts (and TypeChain types) available.
     // Dummy is the placeholder implementation horizon's proxy helpers deploy;
     // its artifact is resolved by name from this package's artifact store.
+    // StakeClaims is the only horizon library with external functions, so
+    // contracts linking it (DisputeManager) need its artifact to be linkable.
     npmFilesToBuild: [
       '@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol',
       '@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol',
       '@graphprotocol/horizon/contracts/mocks/Dummy.sol',
+      '@graphprotocol/horizon/contracts/data-service/libraries/StakeClaims.sol',
     ],
     profiles: {
       // Fast profile for local iteration and Solidity tests
