@@ -1,5 +1,5 @@
 import CurationArtifact from '@graphprotocol/contracts/artifacts/contracts/l2/curation/L2Curation.sol/L2Curation.json'
-import { buildModule } from '@nomicfoundation/ignition-core'
+import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
 
 // Note that this module is a no-op, we only run it to get curation addresses into the address book.
 // Curation deployment should be managed by ignition scripts in subgraph-service package however

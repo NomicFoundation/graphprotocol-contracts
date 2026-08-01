@@ -1,10 +1,6 @@
 import LegacyDisputeManagerArtifact from '@graphprotocol/contracts/artifacts/contracts/disputes/DisputeManager.sol/DisputeManager.json'
 import { deployImplementation, upgradeTransparentUpgradeableProxy } from '@graphprotocol/horizon/ignition'
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
-import ProxyAdminArtifact from '@openzeppelin/contracts/build/contracts/ProxyAdmin.json'
-import TransparentUpgradeableProxyArtifact from '@openzeppelin/contracts/build/contracts/TransparentUpgradeableProxy.json'
-
-import DisputeManagerArtifact from '../../build/contracts/contracts/DisputeManager.sol/DisputeManager.json'
 
 export default buildModule('DisputeManager', (m) => {
   const deployer = m.getAccount(0)
@@ -20,18 +16,15 @@ export default buildModule('DisputeManager', (m) => {
   const fishermanRewardCut = m.getParameter('fishermanRewardCut')
   const maxSlashingCut = m.getParameter('maxSlashingCut')
 
-  const DisputeManagerProxyAdmin = m.contractAt('ProxyAdmin', ProxyAdminArtifact, disputeManagerProxyAdminAddress)
-  const DisputeManagerProxy = m.contractAt(
-    'DisputeManagerProxy',
-    TransparentUpgradeableProxyArtifact,
-    disputeManagerProxyAddress,
-  )
+  const DisputeManagerProxyAdmin = m.contractAt('ProxyAdmin', disputeManagerProxyAdminAddress)
+  const DisputeManagerProxy = m.contractAt('TransparentUpgradeableProxy', disputeManagerProxyAddress, {
+    id: 'DisputeManagerProxy',
+  })
 
   // Deploy implementation
   const DisputeManagerImplementation = deployImplementation(m, {
     name: 'DisputeManager',
     constructorArgs: [controllerAddress],
-    artifact: DisputeManagerArtifact,
   })
 
   // Upgrade implementation
@@ -42,7 +35,6 @@ export default buildModule('DisputeManager', (m) => {
     DisputeManagerImplementation,
     {
       name: 'DisputeManager',
-      artifact: DisputeManagerArtifact,
       initArgs: [deployer, arbitrator, disputePeriod, disputeDeposit, fishermanRewardCut, maxSlashingCut],
     },
   )

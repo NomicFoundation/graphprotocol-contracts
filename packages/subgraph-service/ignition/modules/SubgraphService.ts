@@ -1,9 +1,5 @@
 import { deployImplementation, upgradeTransparentUpgradeableProxy } from '@graphprotocol/horizon/ignition'
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
-import ProxyAdminArtifact from '@openzeppelin/contracts/build/contracts/ProxyAdmin.json'
-import TransparentUpgradeableProxyArtifact from '@openzeppelin/contracts/build/contracts/TransparentUpgradeableProxy.json'
-
-import SubgraphServiceArtifact from '../../build/contracts/contracts/SubgraphService.sol/SubgraphService.json'
 
 export default buildModule('SubgraphService', (m) => {
   const deployer = m.getAccount(0)
@@ -22,12 +18,10 @@ export default buildModule('SubgraphService', (m) => {
   const maxPOIStaleness = m.getParameter('maxPOIStaleness')
   const curationCut = m.getParameter('curationCut')
 
-  const SubgraphServiceProxyAdmin = m.contractAt('ProxyAdmin', ProxyAdminArtifact, subgraphServiceProxyAdminAddress)
-  const SubgraphServiceProxy = m.contractAt(
-    'SubgraphServiceProxy',
-    TransparentUpgradeableProxyArtifact,
-    subgraphServiceProxyAddress,
-  )
+  const SubgraphServiceProxyAdmin = m.contractAt('ProxyAdmin', subgraphServiceProxyAdminAddress)
+  const SubgraphServiceProxy = m.contractAt('TransparentUpgradeableProxy', subgraphServiceProxyAddress, {
+    id: 'SubgraphServiceProxy',
+  })
 
   // Deploy libraries required by SubgraphService
   const StakeClaims = m.library('StakeClaims')
@@ -71,7 +65,6 @@ export default buildModule('SubgraphService', (m) => {
     SubgraphServiceImplementation,
     {
       name: 'SubgraphService',
-      artifact: SubgraphServiceArtifact,
       initArgs: [deployer, minimumProvisionTokens, maximumDelegationRatio, stakeToFeesRatio],
     },
   )
