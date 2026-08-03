@@ -2,15 +2,22 @@ import {
   encodeRegistrationData,
   encodeStartServiceData,
   generateAllocationProof,
-  generatePOI,
   PaymentTypes,
 } from '@graphprotocol/toolshed'
 import { indexersData as indexers } from '@graphprotocol/toolshed/fixtures'
+import { requireLocalNetwork } from '@graphprotocol/toolshed/hardhat'
 import { task } from 'hardhat/config'
+import type { NewTaskActionFunction } from 'hardhat/types/tasks'
 
-task('test:seed', 'Seed the test environment, must be run after deployment').setAction(async (_, hre) => {
+const seedAction: NewTaskActionFunction = async (_, hre) => {
+  const connection = await hre.network.create()
+  const { ethers } = connection
+
+  // this task impersonates indexer accounts so we NEED a local network
+  requireLocalNetwork(connection.networkName)
+
   // Get contracts
-  const graph = hre.graph()
+  const graph = await connection.graph()
   const horizonStaking = graph.horizon.contracts.HorizonStaking
   const subgraphService = graph.subgraphService.contracts.SubgraphService
   const disputeManager = graph.subgraphService.contracts.DisputeManager
@@ -19,44 +26,22 @@ task('test:seed', 'Seed the test environment, must be run after deployment').set
   const subgraphServiceAddress = await subgraphService.getAddress()
 
   // Get chain id
-  const chainId = (await hre.ethers.provider.getNetwork()).chainId
+  const chainId = (await ethers.provider.getNetwork()).chainId
 
   // Get configs
   const disputePeriod = await disputeManager.getDisputePeriod()
   const maxSlashingCut = await disputeManager.maxSlashingCut()
 
-  console.log('\n--- STEP 1: Close all legacy allocations ---')
+  // Legacy allocations are not closed: the horizon staking contract no longer
+  // exposes the transition-period closeAllocation, and its idle stake accounting
+  // already treats tokens allocated pre-horizon as unallocated
 
-  for (const indexer of indexers) {
-    // Skip indexers with no allocations
-    if (indexer.legacyAllocations.length === 0) {
-      continue
-    }
-
-    console.log(`Closing allocations for indexer: ${indexer.address}`)
-
-    // Get indexer signer
-    const indexerSigner = await hre.ethers.getSigner(indexer.address)
-
-    // Close all allocations with POI != 0
-    for (const allocation of indexer.legacyAllocations) {
-      console.log(`Closing allocation: ${allocation.allocationID}`)
-
-      // Close allocation
-      const poi = generatePOI()
-      await horizonStaking.connect(indexerSigner).closeAllocation(allocation.allocationID, poi)
-
-      const allocationData = await horizonStaking.getAllocation(allocation.allocationID)
-      console.log(`Allocation closed at epoch: ${allocationData.closedAtEpoch}`)
-    }
-  }
-
-  console.log('\n--- STEP 2: Create provisions, set delegation cuts and register indexers ---')
+  console.log('\n--- STEP 1: Create provisions, set delegation cuts and register indexers ---')
 
   for (const indexer of indexers) {
     // Create provision
     console.log(`Creating subgraph service provision for indexer: ${indexer.address}`)
-    const indexerSigner = await hre.ethers.getSigner(indexer.address)
+    const indexerSigner = await ethers.getImpersonatedSigner(indexer.address)
     await horizonStaking
       .connect(indexerSigner)
       .provision(
@@ -87,7 +72,7 @@ task('test:seed', 'Seed the test environment, must be run after deployment').set
     const indexerRegistrationData = encodeRegistrationData(
       indexer.url,
       indexer.geoHash,
-      indexer.rewardsDestination || hre.ethers.ZeroAddress,
+      indexer.rewardsDestination || ethers.ZeroAddress,
     )
     await subgraphService.connect(indexerSigner).register(indexerSigner.address, indexerRegistrationData)
 
@@ -96,7 +81,7 @@ task('test:seed', 'Seed the test environment, must be run after deployment').set
     console.log(`Indexer registered at: ${indexerData.url} - ${indexerData.geoHash}`)
   }
 
-  console.log('\n--- STEP 3: Start allocations ---')
+  console.log('\n--- STEP 2: Start allocations ---')
 
   for (const indexer of indexers) {
     // Skip indexers with no allocations
@@ -106,7 +91,7 @@ task('test:seed', 'Seed the test environment, must be run after deployment').set
 
     console.log(`Starting allocations for indexer: ${indexer.address}`)
 
-    const indexerSigner = await hre.ethers.getSigner(indexer.address)
+    const indexerSigner = await ethers.getImpersonatedSigner(indexer.address)
 
     for (const allocation of indexer.allocations) {
       console.log(`Starting allocation: ${allocation.allocationID}`)
@@ -131,4 +116,10 @@ task('test:seed', 'Seed the test environment, must be run after deployment').set
       console.log(`Allocation started with tokens: ${allocationTokens}`)
     }
   }
-})
+}
+
+const seedTask = task('test:seed', 'Seed the test environment, must be run after deployment')
+  .setAction(async () => ({ default: seedAction }))
+  .build()
+
+export default seedTask

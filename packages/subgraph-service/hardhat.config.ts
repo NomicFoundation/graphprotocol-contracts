@@ -7,6 +7,10 @@ import hardhatContractSizer from '@solidstate/hardhat-contract-sizer'
 import { defineConfig } from 'hardhat/config'
 import hardhatGraphProtocol from 'hardhat-graph-protocol'
 
+import { deployMigrateTask, deployProtocolTask } from './tasks/deploy.js'
+import integrationTask from './tasks/test/integration.js'
+import seedTask from './tasks/test/seed.js'
+
 const baseConfig = hardhatBaseConfig(import.meta)
 
 export default defineConfig({
@@ -19,7 +23,7 @@ export default defineConfig({
     hardhatContractSizer,
     hardhatKeystore,
   ],
-  tasks: [],
+  tasks: [deployProtocolTask, deployMigrateTask, seedTask, integrationTask],
   solidity: {
     // Artifacts are only emitted for contracts under `paths.sources` and for npm
     // files listed here. The OZ proxy contracts are deployed by the Ignition
@@ -28,11 +32,18 @@ export default defineConfig({
     // its artifact is resolved by name from this package's artifact store.
     // StakeClaims is the only horizon library with external functions, so
     // contracts linking it (DisputeManager) need its artifact to be linkable.
+    // The remaining horizon contracts are deployed by deploy:protocol, which
+    // co-deploys Horizon from this package through HorizonModule.
     npmFilesToBuild: [
       '@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol',
       '@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol',
       '@graphprotocol/horizon/contracts/mocks/Dummy.sol',
       '@graphprotocol/horizon/contracts/data-service/libraries/StakeClaims.sol',
+      '@graphprotocol/horizon/contracts/staking/HorizonStaking.sol',
+      '@graphprotocol/horizon/contracts/payments/GraphPayments.sol',
+      '@graphprotocol/horizon/contracts/payments/PaymentsEscrow.sol',
+      '@graphprotocol/horizon/contracts/payments/collectors/GraphTallyCollector.sol',
+      '@graphprotocol/horizon/contracts/payments/collectors/RecurringCollector.sol',
     ],
     profiles: {
       // Fast profile for local iteration and Solidity tests

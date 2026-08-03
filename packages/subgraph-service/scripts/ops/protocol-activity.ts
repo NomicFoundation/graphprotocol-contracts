@@ -12,18 +12,21 @@ import {
   ThawRequestType,
 } from '@graphprotocol/toolshed'
 import { randomBigInt } from '@graphprotocol/toolshed/utils'
-import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types'
 import { Wallet } from 'ethers'
-import hre, { ethers } from 'hardhat'
+import hre from 'hardhat'
 
-import { allocationKeys } from './data'
+import { allocationKeys } from './data.js'
+
+const connection = await hre.network.getOrCreate()
+const { ethers } = connection
 
 const GAS_LIMIT = process.env.GAS_LIMIT ? parseInt(process.env.GAS_LIMIT) : 1_000_000
 const LOCAL_NETWORK_INDEXER_PRIVATE_KEY = '0x2ee789a68207020b45607f5adb71933de0946baebbaaab74af7cbd69c8a90573'
 const INDEXER_PRIVATE_KEY = process.env.INDEXER_PRIVATE_KEY ?? LOCAL_NETWORK_INDEXER_PRIVATE_KEY
 
 async function main() {
-  const graph = hre.graph()
+  const graph = await connection.graph()
   const { HorizonStaking, GraphToken, PaymentsEscrow, GraphTallyCollector } = graph.horizon.contracts
   const { SubgraphService, Curation, DisputeManager } = graph.subgraphService.contracts
 
