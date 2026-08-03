@@ -39,7 +39,7 @@
     "build:self": "hardhat compile --quiet",
     "test": "pnpm build && pnpm test:self",
     "test:self": "hardhat test solidity",
-    "test:deployment": "SECURE_ACCOUNTS_DISABLE_PROVIDER=true hardhat test test/deployment/*.ts",
+    "test:deployment": "hardhat test test/deployment/*.ts",
     "test:integration": "./scripts/integration",
     "test:coverage": "pnpm build && pnpm test:coverage:self",
     "test:coverage:self": "hardhat test solidity --coverage",

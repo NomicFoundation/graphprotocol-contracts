@@ -1,12 +1,16 @@
 import { loadConfig } from '@graphprotocol/toolshed/hardhat'
 import { expect } from 'chai'
-import hre from 'hardhat'
 
-import { testIf } from '../../../horizon/test/deployment/lib/testIf'
-import { transparentUpgradeableProxyTests } from '../../../horizon/test/deployment/lib/TransparentUpgradeableProxy.tests'
+import { connection } from '../../../horizon/test/deployment/lib/connection.js'
+import { testIf } from '../../../horizon/test/deployment/lib/testIf.js'
+import { transparentUpgradeableProxyTests } from '../../../horizon/test/deployment/lib/TransparentUpgradeableProxy.tests.js'
 
-const config = loadConfig('./ignition/configs/', 'migrate', hre.network.name).config
-const graph = hre.graph()
+const config = loadConfig(
+  './ignition/configs/',
+  'migrate',
+  String(process.env.TEST_DEPLOYMENT_CONFIG ?? connection.networkName),
+).config
+const graph = await connection.graph()
 
 const addressBookEntry = graph.subgraphService.addressBook.getEntry('SubgraphService')
 const SubgraphService = graph.subgraphService.contracts.SubgraphService
@@ -33,11 +37,15 @@ describe('SubgraphService', function () {
   })
 
   testIf(2)('should set the right dispute manager address', async function () {
+    // Left empty in configs that rely on --patch-config to fill it at deploy time
+    if (!config.$global.disputeManagerProxyAddress) this.skip()
     const disputeManagerAddress = await SubgraphService.getDisputeManager()
     expect(disputeManagerAddress).to.equal(config.$global.disputeManagerProxyAddress)
   })
 
   testIf(2)('should set the right graph tally address', async function () {
+    // Left empty in configs that rely on --patch-config to fill it at deploy time
+    if (!config.$global.graphTallyCollectorAddress) this.skip()
     const graphTallyAddress = await SubgraphService.getGraphTallyCollector()
     expect(graphTallyAddress).to.equal(config.$global.graphTallyCollectorAddress)
   })
