@@ -1,4 +1,4 @@
-import {
+import type {
   GraphPayments,
   GraphTallyCollector,
   HorizonStaking,
@@ -17,13 +17,16 @@ import {
   generateSignerProof,
   PaymentTypes,
 } from '@graphprotocol/toolshed'
-import { delegators, IndexerData as Indexer, indexersData as indexers } from '@graphprotocol/toolshed/fixtures'
+import { delegators, type IndexerData as Indexer, indexersData as indexers } from '@graphprotocol/toolshed/fixtures'
 import { setGRTBalance } from '@graphprotocol/toolshed/hardhat'
-import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types'
 import { expect } from 'chai'
 import { HDNodeWallet } from 'ethers'
-import { ethers } from 'hardhat'
 import hre from 'hardhat'
+
+const connection = await hre.network.getOrCreate()
+const { ethers } = connection
+const graph = await connection.graph()
 
 describe('Indexer', () => {
   let escrow: PaymentsEscrow
@@ -41,7 +44,6 @@ describe('Indexer', () => {
   let graphTallyCollectorAddress: string
   let subgraphServiceAddress: string
 
-  const graph = hre.graph()
   const { collect } = graph.subgraphService.actions
 
   before(async () => {

@@ -1,8 +1,11 @@
-import { DisputeManager } from '@graphprotocol/interfaces'
-import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import type { DisputeManager } from '@graphprotocol/interfaces'
+import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types'
 import { expect } from 'chai'
-import { ethers } from 'hardhat'
 import hre from 'hardhat'
+
+const connection = await hre.network.getOrCreate()
+const { ethers } = connection
+const graph = await connection.graph()
 
 describe('DisputeManager Governance', () => {
   let disputeManager: DisputeManager
@@ -15,7 +18,6 @@ describe('DisputeManager Governance', () => {
   let newSubgraphService: HardhatEthersSigner
 
   before(async () => {
-    const graph = hre.graph()
     disputeManager = graph.subgraphService.contracts.DisputeManager
 
     // Get signers

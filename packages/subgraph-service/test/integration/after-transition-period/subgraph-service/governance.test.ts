@@ -1,8 +1,11 @@
-import { SubgraphService } from '@graphprotocol/interfaces'
-import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import type { SubgraphService } from '@graphprotocol/interfaces'
+import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types'
 import { expect } from 'chai'
-import { ethers } from 'hardhat'
 import hre from 'hardhat'
+
+const connection = await hre.network.getOrCreate()
+const { ethers } = connection
+const graph = await connection.graph()
 
 describe('Subgraph Service Governance', () => {
   let subgraphService: SubgraphService
@@ -14,7 +17,6 @@ describe('Subgraph Service Governance', () => {
   let pauseGuardian: HardhatEthersSigner
 
   before(async () => {
-    const graph = hre.graph()
     subgraphService = graph.subgraphService.contracts.SubgraphService
 
     // Get signers
