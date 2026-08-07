@@ -1,4 +1,4 @@
-import { DisputeManager, L2GraphToken, SubgraphService } from '@graphprotocol/interfaces'
+import type { DisputeManager, L2GraphToken, SubgraphService } from '@graphprotocol/interfaces'
 import {
   encodeCollectIndexingRewardsData,
   encodePOIMetadata,
@@ -10,10 +10,13 @@ import {
 } from '@graphprotocol/toolshed'
 import { indexersData as indexers } from '@graphprotocol/toolshed/fixtures'
 import { setGRTBalance } from '@graphprotocol/toolshed/hardhat'
-import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types'
 import { expect } from 'chai'
-import { ethers } from 'hardhat'
 import hre from 'hardhat'
+
+const connection = await hre.network.getOrCreate()
+const { ethers } = connection
+const graph = await connection.graph()
 
 describe('Paused Protocol', () => {
   let disputeManager: DisputeManager
@@ -31,7 +34,6 @@ describe('Paused Protocol', () => {
   let allocationTokens: bigint
   let subgraphServiceAddress: string
 
-  const graph = hre.graph()
   const { provision } = graph.horizon.actions
   const { collect } = graph.subgraphService.actions
 
@@ -45,7 +47,7 @@ describe('Paused Protocol', () => {
     pauseGuardian = await graph.accounts.getPauseGuardian()
 
     // Get chain id
-    chainId = Number((await hre.ethers.provider.getNetwork()).chainId)
+    chainId = Number((await ethers.provider.getNetwork()).chainId)
 
     // Get subgraph service address
     subgraphServiceAddress = await subgraphService.getAddress()

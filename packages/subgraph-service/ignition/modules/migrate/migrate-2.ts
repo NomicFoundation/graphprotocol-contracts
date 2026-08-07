@@ -1,10 +1,10 @@
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
 
-import CurationModule from '../Curation'
-import DisputeManagerModule from '../DisputeManager'
-import GNSModule from '../GNS'
-import ServiceRegistryModule from '../ServiceRegistry'
-import SubgraphServiceModule from '../SubgraphService'
+import CurationModule from '../Curation.js'
+import DisputeManagerModule from '../DisputeManager.js'
+import GNSModule from '../GNS.js'
+import ServiceRegistryModule from '../ServiceRegistry.js'
+import SubgraphServiceModule from '../SubgraphService.js'
 
 export default buildModule('SubgraphService_Migrate_2', (m) => {
   const { DisputeManager, DisputeManagerImplementation, LegacyDisputeManager } = m.useModule(DisputeManagerModule)

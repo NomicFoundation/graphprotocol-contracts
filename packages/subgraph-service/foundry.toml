@@ -1,26 +1,21 @@
+# This config carries just what lint's compile pass needs
 [profile.default]
 src = 'contracts'
 out = 'build'
 libs = ["node_modules"]
-test = 'test'
+# Forge-only remappings; forge doesn't auto-generate these (@graphprotocol/ isn't
+# detected, and its forge-std default misses the /src/ suffix). Hardhat resolves
+# both natively, so they don't belong in a remappings.txt, which hardhat also reads.
+remappings = [
+    "@graphprotocol/=node_modules/@graphprotocol/",
+    "forge-std/=node_modules/forge-std/src/",
+]
 cache_path = 'cache_forge'
-fs_permissions = [{ access = "read", path = "./" }]
 solc_version = '0.8.35'
 evm_version = 'cancun'
 # Suppress solc warnings emitted from third-party code we don't control
 # (e.g. @openzeppelin/foundry-upgrades' state-mutability suggestions).
 ignored_warnings_from = ["node_modules"]
-
-# Exclude test files from coverage reports
-no_match_coverage = "(^test/|/mocks/)"
-
-# Opt-in profile for production-matching bytecode (viaIR + optimizer).
-# Use FOUNDRY_PROFILE=prod for CI / pre-merge runs that should mirror what hardhat
-# compiles for deploy. Default profile stays optimizer-off / viaIR-off for fast iteration.
-[profile.prod]
-optimizer = true
-optimizer_runs = 100
-via_ir = true
 
 # Lint configuration
 [lint]

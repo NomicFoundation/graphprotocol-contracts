@@ -1,4 +1,4 @@
-import {
+import type {
   DisputeManager,
   GraphTallyCollector,
   HorizonStaking,
@@ -20,10 +20,13 @@ import {
 import { PaymentTypes } from '@graphprotocol/toolshed'
 import { indexersData as indexers } from '@graphprotocol/toolshed/fixtures'
 import { setGRTBalance } from '@graphprotocol/toolshed/hardhat'
-import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types'
 import { expect } from 'chai'
-import { ethers } from 'hardhat'
 import hre from 'hardhat'
+
+const connection = await hre.network.getOrCreate()
+const { ethers } = connection
+const graph = await connection.graph()
 
 describe('Operator', () => {
   let subgraphService: SubgraphService
@@ -45,7 +48,6 @@ describe('Operator', () => {
   let allocationTokens: bigint
   let graphTallyCollectorAddress: string
   let subgraphServiceAddress: string
-  const graph = hre.graph()
   const { provision } = graph.horizon.actions
   const { collect } = graph.subgraphService.actions
 

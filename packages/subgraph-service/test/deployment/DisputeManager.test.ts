@@ -1,16 +1,16 @@
 import { loadConfig } from '@graphprotocol/toolshed/hardhat'
 import { expect } from 'chai'
-import hre from 'hardhat'
 
-import { testIf } from '../../../horizon/test/deployment/lib/testIf'
-import { transparentUpgradeableProxyTests } from '../../../horizon/test/deployment/lib/TransparentUpgradeableProxy.tests'
+import { connection } from '../../../horizon/test/deployment/lib/connection.js'
+import { testIf } from '../../../horizon/test/deployment/lib/testIf.js'
+import { transparentUpgradeableProxyTests } from '../../../horizon/test/deployment/lib/TransparentUpgradeableProxy.tests.js'
 
 const config = loadConfig(
   './ignition/configs/',
   'migrate',
-  String(process.env.TEST_DEPLOYMENT_CONFIG ?? hre.network.name),
+  String(process.env.TEST_DEPLOYMENT_CONFIG ?? connection.networkName),
 ).config
-const graph = hre.graph()
+const graph = await connection.graph()
 
 const addressBookEntry = graph.subgraphService.addressBook.getEntry('DisputeManager')
 const DisputeManager = graph.subgraphService.contracts.DisputeManager
@@ -47,6 +47,8 @@ describe('DisputeManager', function () {
   })
 
   testIf(2)('should set the right subgraph service address', async function () {
+    // Left empty in configs that rely on --patch-config to fill it at deploy time
+    if (!config.$global.subgraphServiceProxyAddress) this.skip()
     const subgraphService = await DisputeManager.subgraphService()
     expect(subgraphService).to.equal(config.$global.subgraphServiceProxyAddress)
   })

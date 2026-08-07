@@ -21,6 +21,7 @@
     subgraphServiceProxyAddress: '',
     subgraphServiceProxyAdminAddress: '',
     graphTallyCollectorAddress: '',
+    recurringCollectorAddress: '',
   },
   DisputeManager: {
     disputePeriod: 7200,

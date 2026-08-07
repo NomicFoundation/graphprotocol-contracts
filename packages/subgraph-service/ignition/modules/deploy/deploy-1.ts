@@ -1,6 +1,6 @@
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
 
-import ProxiesModule from '../Proxies'
+import ProxiesModule from '../Proxies.js'
 
 export default buildModule('SubgraphService_Deploy_1', (m) => {
   const { SubgraphServiceProxy, SubgraphServiceProxyAdmin, DisputeManagerProxy, DisputeManagerProxyAdmin } =

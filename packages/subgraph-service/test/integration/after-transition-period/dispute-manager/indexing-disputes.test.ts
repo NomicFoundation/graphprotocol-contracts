@@ -1,11 +1,14 @@
-import { DisputeManager, HorizonStaking, L2GraphToken, SubgraphService } from '@graphprotocol/interfaces'
+import type { DisputeManager, HorizonStaking, L2GraphToken, SubgraphService } from '@graphprotocol/interfaces'
 import { generatePOI } from '@graphprotocol/toolshed'
 import { indexersData as indexers } from '@graphprotocol/toolshed/fixtures'
-import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types'
 import { expect } from 'chai'
 import { EventLog } from 'ethers'
-import { ethers } from 'hardhat'
 import hre from 'hardhat'
+
+const connection = await hre.network.getOrCreate()
+const { ethers } = connection
+const graph = await connection.graph()
 
 describe('Indexing Disputes', () => {
   let disputeManager: DisputeManager
@@ -29,7 +32,6 @@ describe('Indexing Disputes', () => {
 
   before(async () => {
     // Get contracts
-    const graph = hre.graph()
     disputeManager = graph.subgraphService.contracts.DisputeManager
     graphToken = graph.horizon.contracts.GraphToken
     staking = graph.horizon.contracts.HorizonStaking

@@ -63,7 +63,8 @@
     "prepublishOnly": "pnpm run build"
   },
   "peerDependencies": {
-    "@openzeppelin/contracts": "3.4.2 || ^5.0.2"
+    "@openzeppelin/contracts": "3.4.2 || ^5.0.2",
+    "ethers": "^5.7.0 || ^6.13.0"
   },
   "devDependencies": {
     "@ethersproject/abi": "5.7.0",
