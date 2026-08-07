@@ -39,6 +39,7 @@
     "build:self": "hardhat compile --quiet",
     "test": "pnpm build && pnpm test:self",
     "test:self": "hardhat test solidity",
+    "test:prod": "hardhat test solidity --build-profile production",
     "test:deployment": "hardhat test test/deployment/*.ts",
     "test:integration": "./scripts/integration",
     "test:coverage": "pnpm build && pnpm test:coverage:self",
