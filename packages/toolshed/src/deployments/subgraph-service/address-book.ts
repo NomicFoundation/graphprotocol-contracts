@@ -1,10 +1,10 @@
 import { Provider, Signer } from 'ethers'
 
-import { assertObject } from '../../lib/assert'
-import { logDebug, logError } from '../../lib/logger'
-import { AddressBook } from '../address-book'
-import type { SubgraphServiceContractName, SubgraphServiceContracts } from './contracts'
-import { SubgraphServiceContractNameList } from './contracts'
+import { assertObject } from '../../lib/assert.js'
+import { logDebug, logError } from '../../lib/logger.js'
+import { AddressBook } from '../address-book.js'
+import type { SubgraphServiceContractName, SubgraphServiceContracts } from './contracts.js'
+import { SubgraphServiceContractNameList } from './contracts.js'
 
 export class SubgraphServiceAddressBook extends AddressBook<number, SubgraphServiceContractName> {
   isContractName(name: unknown): name is SubgraphServiceContractName {

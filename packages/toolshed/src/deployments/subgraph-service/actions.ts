@@ -1,5 +1,5 @@
 import type { SubgraphService } from '@graphprotocol/interfaces'
-import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types'
 import { Interface } from 'ethers'
 
 export function loadActions(contracts: { SubgraphService: SubgraphService }) {

@@ -1,8 +1,8 @@
 import fs from 'fs'
-import { parse } from 'json5'
+import JSON5 from 'json5'
 import path from 'path'
 
-import type { AddressBook } from '../deployments/address-book'
+import type { AddressBook } from '../deployments/address-book.js'
 
 type IgnitionConfigValue = string | number
 type IgnitionConfig = {
@@ -29,7 +29,7 @@ export function loadConfig(
     throw new Error(`Config file not found. Tried:\n${configFileCandidates.map((f) => `- ${f}`).join('\n')}`)
   }
 
-  const config = parse<IgnitionConfig>(fs.readFileSync(configFile, 'utf8'))
+  const config = JSON5.parse<IgnitionConfig>(fs.readFileSync(configFile, 'utf8'))
 
   return {
     config: removeNFromBigInts(config),

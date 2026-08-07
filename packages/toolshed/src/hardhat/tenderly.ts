@@ -1,10 +1,9 @@
 import { execSync } from 'child_process'
 import fs from 'fs'
-import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import https from 'https'
 import path from 'path'
 
-import { AddressBookEntry, AddressBookJson } from '../deployments/address-book'
+import { AddressBookEntry, AddressBookJson } from '../deployments/address-book.js'
 
 export interface TenderlyConfig {
   username: string
@@ -450,31 +449,29 @@ function findBuildInfoForContract(sourcePath: string, packageDir: string): strin
 }
 
 export async function runTenderlyUpload(
-  hre: HardhatRuntimeEnvironment,
+  networkName: string,
+  chainId: number | undefined,
   tenderly: TenderlyPlugin,
   packageDir: string,
   addresses: AddressBookJson,
   accessToken: string,
   taskArgs: { noVerify: boolean; skipAdd: boolean },
 ): Promise<void> {
-  const { network } = hre
-
-  const chainId = network.config.chainId
   if (!chainId) {
     throw new Error('Network chain ID not found')
   }
 
   console.log(`\nUploading contracts to Tenderly`)
-  console.log(`Network: ${network.name} (${chainId})`)
+  console.log(`Network: ${networkName} (${chainId})`)
 
   const tenderlyConfig = loadTenderlyConfig(packageDir)
-  const networkConfig = tenderlyConfig.networks[chainId]
+  const tenderlyNetworkConfig = tenderlyConfig.networks[chainId]
 
-  if (!networkConfig) {
+  if (!tenderlyNetworkConfig) {
     throw new Error(`No Tenderly project configured for network ${chainId}`)
   }
 
-  console.log(`Tenderly project: ${tenderlyConfig.username}/${networkConfig.project}\n`)
+  console.log(`Tenderly project: ${tenderlyConfig.username}/${tenderlyNetworkConfig.project}\n`)
 
   // Copy external artifacts if configured
   if (tenderlyConfig.externalArtifacts) {
@@ -592,6 +589,6 @@ export async function runTenderlyUpload(
   console.log(`Upload complete!`)
   console.log(`${'='.repeat(60)}`)
   console.log(
-    `\nView contracts: https://dashboard.tenderly.co/${tenderlyConfig.username}/${networkConfig.project}/contracts\n`,
+    `\nView contracts: https://dashboard.tenderly.co/${tenderlyConfig.username}/${tenderlyNetworkConfig.project}/contracts\n`,
   )
 }

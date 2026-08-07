@@ -1,11 +1,17 @@
-// This import is needed to let the TypeScript compiler know that it should include your type
-// extensions in your npm package's types file.
-import './type-extensions'
+import './type-extensions.js'
 
-import { extendConfig, extendEnvironment } from 'hardhat/config'
+import { definePlugin } from 'hardhat/plugins'
 
-import { greExtendConfig, greExtendEnvironment } from './gre'
+const hardhatGraphProtocolPlugin = definePlugin({
+  id: 'hardhat-graph-protocol',
+  hookHandlers: {
+    config: () => import('./hook-handlers/config.js'),
+    network: () => import('./hook-handlers/network.js'),
+  },
+  dependencies: () => [import('@nomicfoundation/hardhat-ethers')],
+  npmPackage: 'hardhat-graph-protocol',
+})
 
-// ** Graph Runtime Environment (GRE) extensions for the HRE **
-extendConfig(greExtendConfig)
-extendEnvironment(greExtendEnvironment)
+export default hardhatGraphProtocolPlugin
+
+export type { GraphDeploymentOptions, GraphRuntimeEnvironment, GraphRuntimeEnvironmentOptions } from './types.js'

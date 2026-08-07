@@ -1,10 +1,10 @@
 import { ContractRunner, Interface } from 'ethers'
 
-import { factories } from '../types'
+import { factories } from '../types/index.js'
 
-export * from './types/horizon'
-export * from './types/issuance'
-export * from './types/subgraph-service'
+export * from './types/horizon.js'
+export * from './types/issuance.js'
+export * from './types/subgraph-service.js'
 
 /**
  * Interface representing a static contract factory with methods to create interfaces and connect to contracts

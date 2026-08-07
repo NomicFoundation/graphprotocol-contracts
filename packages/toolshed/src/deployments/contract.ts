@@ -1,7 +1,7 @@
 import { getInterface } from '@graphprotocol/interfaces'
 import { Contract, Provider, Signer } from 'ethers'
 
-import { wrapTransactionCalls } from './tx-logging'
+import { wrapTransactionCalls } from './tx-logging.js'
 
 export type ContractList<T extends string = string> = Partial<Record<T, unknown>>
 

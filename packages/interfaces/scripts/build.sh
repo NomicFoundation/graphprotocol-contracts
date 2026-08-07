@@ -69,7 +69,7 @@ missing_ids=$(grep -rL "static readonly interfaceId" types/factories --include="
 
 if [[ $missing_ids -gt 0 ]]; then
     # Slow operation, only run if needed
-    npx ts-node scripts/utils/addInterfaceIds.ts types/factories
+    node scripts/utils/addInterfaceIds.ts types/factories
 fi
 
 # Step 2: Generate types (only if needed)
@@ -153,6 +153,10 @@ if [[ "$needs_copy" == "true" ]]; then
 else
     log_info "📁 Compiled types organization is up to date"
 fi
+
+# The v5 types are compiled to CommonJS (see tsconfig.v5.json) inside an ESM
+# package, so Node needs a scope marker to load the .js files as CJS.
+echo '{"type":"commonjs"}' > dist/types-v5/package.json
 
 log_info "✅ Build completed successfully!"
 log_info "📄 Generated types:"

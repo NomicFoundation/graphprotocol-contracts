@@ -1,9 +1,9 @@
 import GraphTokenGatewayArtifact from '@graphprotocol/contracts/artifacts/contracts/l2/gateway/L2GraphTokenGateway.sol/L2GraphTokenGateway.json'
 import { buildModule } from '@nomicfoundation/ignition-core'
 
-import ControllerModule from '../periphery/Controller'
-import GraphProxyAdminModule from '../periphery/GraphProxyAdmin'
-import { deployWithGraphProxy } from '../proxy/GraphProxy'
+import ControllerModule from '../periphery/Controller.js'
+import GraphProxyAdminModule from '../periphery/GraphProxyAdmin.js'
+import { deployWithGraphProxy } from '../proxy/GraphProxy.js'
 
 export default buildModule('L2GraphTokenGateway', (m) => {
   const { Controller } = m.useModule(ControllerModule)

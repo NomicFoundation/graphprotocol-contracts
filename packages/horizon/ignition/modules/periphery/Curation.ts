@@ -4,10 +4,10 @@ import GraphProxyArtifact from '@graphprotocol/contracts/artifacts/contracts/upg
 import GraphProxyAdminArtifact from '@graphprotocol/contracts/artifacts/contracts/upgrades/GraphProxyAdmin.sol/GraphProxyAdmin.json'
 import { buildModule, IgnitionModuleBuilder } from '@nomicfoundation/ignition-core'
 
-import { deployWithGraphProxy, upgradeGraphProxy } from '../proxy/GraphProxy'
-import { deployImplementation } from '../proxy/implementation'
-import ControllerModule from './Controller'
-import GraphProxyAdminModule from './GraphProxyAdmin'
+import { deployWithGraphProxy, upgradeGraphProxy } from '../proxy/GraphProxy.js'
+import { deployImplementation } from '../proxy/implementation.js'
+import ControllerModule from './Controller.js'
+import GraphProxyAdminModule from './GraphProxyAdmin.js'
 
 // Curation deployment should be managed by ignition scripts in subgraph-service package however
 // due to tight coupling with Controller it's easier to do it on the horizon package.

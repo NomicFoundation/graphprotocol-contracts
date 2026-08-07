@@ -1,10 +1,9 @@
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
 
-import PaymentsEscrowArtifact from '../../../build/contracts/contracts/payments/PaymentsEscrow.sol/PaymentsEscrow.json'
-import GraphPeripheryModule, { MigratePeripheryModule } from '../periphery/periphery'
-import { deployImplementation } from '../proxy/implementation'
-import { upgradeTransparentUpgradeableProxy } from '../proxy/TransparentUpgradeableProxy'
-import HorizonProxiesModule, { MigrateHorizonProxiesDeployerModule } from './HorizonProxies'
+import GraphPeripheryModule, { MigratePeripheryModule } from '../periphery/periphery.js'
+import { deployImplementation } from '../proxy/implementation.js'
+import { upgradeTransparentUpgradeableProxy } from '../proxy/TransparentUpgradeableProxy.js'
+import HorizonProxiesModule, { MigrateHorizonProxiesDeployerModule } from './HorizonProxies.js'
 
 export default buildModule('PaymentsEscrow', (m) => {
   const { Controller } = m.useModule(GraphPeripheryModule)
@@ -18,7 +17,6 @@ export default buildModule('PaymentsEscrow', (m) => {
     m,
     {
       name: 'PaymentsEscrow',
-      artifact: PaymentsEscrowArtifact,
       constructorArgs: [Controller, withdrawEscrowThawingPeriod],
     },
     { after: [GraphPeripheryModule, HorizonProxiesModule] },
@@ -32,7 +30,6 @@ export default buildModule('PaymentsEscrow', (m) => {
     PaymentsEscrowImplementation,
     {
       name: 'PaymentsEscrow',
-      artifact: PaymentsEscrowArtifact,
       initArgs: [],
     },
   )
@@ -56,7 +53,6 @@ export const MigratePaymentsEscrowModule = buildModule('PaymentsEscrow', (m) => 
   // Deploy PaymentsEscrow implementation
   const PaymentsEscrowImplementation = deployImplementation(m, {
     name: 'PaymentsEscrow',
-    artifact: PaymentsEscrowArtifact,
     constructorArgs: [Controller, withdrawEscrowThawingPeriod],
   })
 
@@ -68,7 +64,6 @@ export const MigratePaymentsEscrowModule = buildModule('PaymentsEscrow', (m) => 
     PaymentsEscrowImplementation,
     {
       name: 'PaymentsEscrow',
-      artifact: PaymentsEscrowArtifact,
       initArgs: [],
     },
   )

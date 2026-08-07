@@ -1,106 +1,107 @@
 import type { GraphDeployments } from '@graphprotocol/toolshed/deployments'
 import { loadGraphHorizon, loadSubgraphService } from '@graphprotocol/toolshed/deployments'
-import { HardhatEthersProvider } from '@nomicfoundation/hardhat-ethers/internal/hardhat-ethers-provider'
-import { lazyFunction } from 'hardhat/plugins'
-import type { HardhatConfig, HardhatRuntimeEnvironment, HardhatUserConfig } from 'hardhat/types'
-import path from 'path'
+import type { HardhatConfig } from 'hardhat/types/config'
+import type { ChainType, NetworkConnection } from 'hardhat/types/network'
 
-import { getAccounts } from './accounts'
-import { getAddressBookPath } from './config'
-import { GraphPluginError } from './error'
-import { logDebug, logError } from './logger'
-import type { GraphRuntimeEnvironmentOptions } from './types'
-import { isGraphDeployment } from './types'
+import { getAccounts } from './accounts.js'
+import { getAddressBookPath } from './config.js'
+import { GraphPluginError } from './error.js'
+import { logDebug, logError } from './logger.js'
+import type { GraphRuntimeEnvironment, GraphRuntimeEnvironmentOptions } from './types.js'
+import { isGraphDeployment } from './types.js'
 
-export const greExtendConfig = (config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) => {
-  const userPath = userConfig.paths?.graph
+export async function loadGraphRuntimeEnvironment<ChainTypeT extends ChainType | string>(
+  connection: NetworkConnection<ChainTypeT>,
+  config: Pick<HardhatConfig, 'paths' | 'graph'>,
+  opts?: GraphRuntimeEnvironmentOptions,
+): Promise<GraphRuntimeEnvironment> {
+  const {
+    networkName,
+    networkConfig,
+    ethers: { provider },
+  } = connection
 
-  let newPath: string
-  if (userPath === undefined) {
-    newPath = config.paths.root
-  } else {
-    if (path.isAbsolute(userPath)) {
-      newPath = userPath
-    } else {
-      newPath = path.normalize(path.join(config.paths.root, userPath))
+  logDebug('*** Initializing Graph Runtime Environment (GRE) ***')
+  logDebug(`Main network: ${networkName}`)
+
+  const resolvedOpts: GraphRuntimeEnvironmentOptions = opts ?? {
+    deployments: {},
+    createAddressBook: false,
+  }
+
+  const chainId = networkConfig.chainId
+  if (chainId === undefined) {
+    throw new GraphPluginError('Please define chainId in your Hardhat network configuration')
+  }
+  logDebug(`Chain Id: ${chainId}`)
+
+  const deployments = [
+    ...new Set(
+      [
+        ...Object.keys(resolvedOpts.deployments ?? {}),
+        ...Object.keys(networkConfig.deployments ?? {}),
+        ...Object.keys(config.graph?.deployments ?? {}),
+      ].filter((value) => isGraphDeployment(value)),
+    ),
+  ]
+  logDebug(`Detected deployments: ${deployments.join(', ')}`)
+
+  // Build the Graph Runtime Environment (GRE) for each deployment
+  const greDeployments = {} as GraphDeployments
+
+  const resolutionCtx = {
+    networkConfig,
+    graphConfig: config.graph,
+    graphPath: config.paths.graph,
+  }
+
+  for (const deployment of deployments) {
+    logDebug(`== Initializing deployment: ${deployment} ==`)
+
+    // A deployment can be configured but not available on the network - most
+    // commonly the address book file does not exist. Skip it instead of failing
+    // the whole environment so the other deployments remain usable.
+    let addressBookPath: string | undefined
+    try {
+      addressBookPath = getAddressBookPath(deployment, resolutionCtx, resolvedOpts)
+    } catch (error) {
+      logError(`Skipping deployment ${deployment} - Reason: ${error instanceof Error ? error.message : error}`)
+      continue
+    }
+    if (addressBookPath === undefined) {
+      logError(`Skipping deployment ${deployment} - Reason: address book path does not exist`)
+      continue
+    }
+
+    try {
+      switch (deployment) {
+        case 'horizon':
+          greDeployments.horizon = loadGraphHorizon(addressBookPath, chainId, provider)
+          break
+        case 'subgraphService':
+          greDeployments.subgraphService = loadSubgraphService(addressBookPath, chainId, provider)
+          break
+        default:
+          logError(`Skipping deployment ${deployment} - Reason: unknown deployment`)
+          break
+      }
+    } catch (error) {
+      logError(`Skipping deployment ${deployment} - Reason: runtime error`)
+      logError(error)
+      continue
     }
   }
 
-  config.paths.graph = newPath
-}
+  // Accounts
+  // We use ? here because we've previously asserted that the deployment exists which might not be true
+  const accounts = getAccounts(provider, chainId, greDeployments.horizon?.contracts?.GraphToken?.target)
 
-export const greExtendEnvironment = (hre: HardhatRuntimeEnvironment) => {
-  hre.graph = lazyFunction(() => (opts?: GraphRuntimeEnvironmentOptions) => {
-    logDebug('*** Initializing Graph Runtime Environment (GRE) ***')
-    logDebug(`Main network: ${hre.network.name}`)
+  logDebug('GRE initialized successfully!')
 
-    if (opts === undefined) {
-      opts = {
-        deployments: {},
-        createAddressBook: false,
-      }
-    }
-
-    const chainId = hre.network.config.chainId
-    if (chainId === undefined) {
-      throw new GraphPluginError('Please define chainId in your Hardhat network configuration')
-    }
-    logDebug(`Chain Id: ${chainId}`)
-
-    const deployments = [
-      ...new Set(
-        [
-          ...Object.keys(opts.deployments ?? {}),
-          ...Object.keys(hre.network.config.deployments ?? {}),
-          ...Object.keys(hre.config.graph?.deployments ?? {}),
-        ].filter((v) => isGraphDeployment(v)),
-      ),
-    ]
-    logDebug(`Detected deployments: ${deployments.join(', ')}`)
-
-    // Build the Graph Runtime Environment (GRE) for each deployment
-    const provider = new HardhatEthersProvider(hre.network.provider, hre.network.name)
-    const greDeployments = {} as GraphDeployments
-
-    for (const deployment of deployments) {
-      logDebug(`== Initializing deployment: ${deployment} ==`)
-
-      const addressBookPath = getAddressBookPath(deployment, hre, opts)
-      if (addressBookPath === undefined) {
-        logError(`Skipping deployment ${deployment} - Reason: address book path does not exist`)
-        continue
-      }
-
-      try {
-        switch (deployment) {
-          case 'horizon':
-            greDeployments.horizon = loadGraphHorizon(addressBookPath, chainId, provider)
-            break
-          case 'subgraphService':
-            greDeployments.subgraphService = loadSubgraphService(addressBookPath, chainId, provider)
-            break
-          default:
-            logError(`Skipping deployment ${deployment} - Reason: unknown deployment`)
-            break
-        }
-      } catch (error) {
-        logError(`Skipping deployment ${deployment} - Reason: runtime error`)
-        logError(error)
-        continue
-      }
-    }
-
-    // Accounts
-    // We use ? here because we've previously asserted that the deployment exists which might not be true
-    const accounts = getAccounts(provider, chainId, greDeployments.horizon?.contracts?.GraphToken?.target)
-
-    logDebug('GRE initialized successfully!')
-
-    return {
-      ...greDeployments,
-      provider,
-      chainId,
-      accounts,
-    }
-  })
+  return {
+    ...greDeployments,
+    provider,
+    chainId,
+    accounts,
+  }
 }

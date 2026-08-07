@@ -9,7 +9,7 @@ import type {
 } from 'ethers'
 import fs from 'fs'
 
-import { logTxLogging } from '../lib/logger'
+import { logTxLogging } from '../lib/logger.js'
 
 /**
  * Wraps contract calls with a modified call function that logs the tx details

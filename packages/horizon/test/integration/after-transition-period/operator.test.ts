@@ -1,9 +1,12 @@
 import { ONE_MILLION, PaymentTypes } from '@graphprotocol/toolshed'
 import { setGRTBalance } from '@graphprotocol/toolshed/hardhat'
-import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers'
+import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types'
 import { expect } from 'chai'
 import hre from 'hardhat'
-import { ethers } from 'hardhat'
+
+const connection = await hre.network.getOrCreate()
+const { ethers } = connection
+const graph = await connection.graph()
 
 describe('Operator', () => {
   let serviceProvider: HardhatEthersSigner
@@ -14,7 +17,6 @@ describe('Operator', () => {
   const maxVerifierCut = 1000000n // 100%
   const thawingPeriod = 2419200n
 
-  const graph = hre.graph()
   const { stakeTo } = graph.horizon.actions
   const horizonStaking = graph.horizon.contracts.HorizonStaking
   const graphToken = graph.horizon.contracts.L2GraphToken

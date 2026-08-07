@@ -1,7 +1,9 @@
 // scripts/decode-creation-args.ts
 import fs from 'node:fs'
 
-import { ethers } from 'hardhat'
+import { network } from 'hardhat'
+
+const { ethers } = await network.create()
 
 function stripCborTrailer(hex: string) {
   // Remove trailing CBOR metadata based on the last 2 bytes length

@@ -3,137 +3,216 @@ import { ZERO_ADDRESS } from '@graphprotocol/toolshed'
 import type { AddressBook } from '@graphprotocol/toolshed/deployments'
 import { loadConfig, patchConfig, saveToAddressBook } from '@graphprotocol/toolshed/hardhat'
 import { printHorizonBanner } from '@graphprotocol/toolshed/utils'
-import { task, types } from 'hardhat/config'
-import type { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { task } from 'hardhat/config'
+import { ArgumentType } from 'hardhat/types/arguments'
+import type { HardhatRuntimeEnvironment } from 'hardhat/types/hre'
+import type { NewTaskActionFunction } from 'hardhat/types/tasks'
 
-import DeployModule from '../ignition/modules/deploy'
+interface DeployProtocolArgs {
+  horizonConfig?: string
+  accountIndex: number
+}
 
-task('deploy:protocol', 'Deploy a new version of the Graph Protocol Horizon contracts - no data services deployed')
-  .addOptionalParam(
-    'horizonConfig',
-    'Name of the Horizon configuration file to use. Format is "protocol.<name>.json5", file must be in the "ignition/configs/" directory. Defaults to network name.',
-    undefined,
-    types.string,
+interface DeployMigrateArgs {
+  horizonConfig?: string
+  step: number
+  accountIndex: number
+  patchConfig: boolean
+  standalone: boolean
+  hideBanner: boolean
+}
+
+// Deployed bytecode must come from the production build profile - the default
+// profile skips viaIR and the optimizer for fast iteration
+async function buildProductionArtifacts(hre: HardhatRuntimeEnvironment) {
+  await hre.tasks.getTask('build').run({ defaultBuildProfile: 'production', noTests: true, quiet: true })
+}
+
+const deployProtocolAction: NewTaskActionFunction<DeployProtocolArgs> = async (args, hre) => {
+  await buildProductionArtifacts(hre)
+
+  const connection = await hre.network.create()
+  const { ethers, ignition } = connection
+  const graph = await connection.graph({ createAddressBook: true })
+
+  // Load configuration for the deployment
+  console.log('\n========== ⚙️ Deployment configuration ==========')
+  const { config: HorizonConfig, file } = loadConfig(
+    './ignition/configs/',
+    'protocol',
+    args.horizonConfig ?? connection.networkName,
   )
-  .addOptionalParam('accountIndex', 'Derivation path index for the account to use', 0, types.int)
-  .setAction(async (args, hre: HardhatRuntimeEnvironment) => {
-    const graph = hre.graph({ createAddressBook: true })
+  console.log(`Loaded migration configuration from ${file}`)
 
-    // Load configuration for the deployment
-    console.log('\n========== ⚙️ Deployment configuration ==========')
-    const { config: HorizonConfig, file } = loadConfig(
-      './ignition/configs/',
-      'protocol',
-      args.horizonConfig ?? hre.network.name,
-    )
-    console.log(`Loaded migration configuration from ${file}`)
+  // Display the deployer
+  console.log('\n========== 🔑 Deployer account ==========')
+  const deployer = await graph.accounts.getDeployer(args.accountIndex)
+  console.log('Using deployer account:', deployer.address)
+  const balance = await ethers.provider.getBalance(deployer.address)
+  console.log('Deployer balance:', ethers.formatEther(balance), 'ETH')
+  if (balance === 0n) {
+    console.error('Error: Deployer account has no ETH balance')
+    process.exit(1)
+  }
 
-    // Display the deployer -- this also triggers the secure accounts prompt if being used
-    console.log('\n========== 🔑 Deployer account ==========')
-    const deployer = await graph.accounts.getDeployer(args.accountIndex)
-    console.log('Using deployer account:', deployer.address)
-    const balance = await hre.ethers.provider.getBalance(deployer.address)
-    console.log('Deployer balance:', hre.ethers.formatEther(balance), 'ETH')
-    if (balance === 0n) {
-      console.error('Error: Deployer account has no ETH balance')
-      process.exit(1)
-    }
-
-    // Deploy the contracts
-    console.log(`\n========== 🚧 Deploy protocol ==========`)
-    const deployment = await hre.ignition.deploy(DeployModule, {
-      displayUi: true,
-      parameters: HorizonConfig,
-      defaultSender: deployer.address,
-    })
-
-    // Save the addresses to the address book
-    console.log('\n========== 📖 Updating address book ==========')
-    // @ts-expect-error - @graphprotocol/toolshed/hardhat exports ts files so types mismatch here
-    saveToAddressBook(deployment, graph.horizon.addressBook)
-    console.log(`Address book at ${graph.horizon.addressBook.file} updated!`)
-
-    console.log('\n\n🎉 ✨ 🚀 ✅ Deployment complete! 🎉 ✨ 🚀 ✅')
+  // Deploy the contracts
+  console.log(`\n========== 🚧 Deploy protocol ==========`)
+  const DeployModule = (await import('../ignition/modules/deploy.js')).default
+  const deployment = await ignition.deploy(DeployModule, {
+    displayUi: true,
+    parameters: HorizonConfig,
+    defaultSender: deployer.address,
   })
 
-task('deploy:migrate', 'Upgrade an existing version of the Graph Protocol v1 to Horizon - no data services deployed')
-  .addOptionalParam(
-    'horizonConfig',
-    'Name of the Horizon configuration file to use. Format is "migrate.<name>.json5", file must be in the "ignition/configs/" directory. Defaults to network name.',
-    undefined,
-    types.string,
+  // Save the addresses to the address book
+  console.log('\n========== 📖 Updating address book ==========')
+  saveToAddressBook(deployment, graph.horizon.addressBook)
+  console.log(`Address book at ${graph.horizon.addressBook.file} updated!`)
+
+  console.log('\n\n🎉 ✨ 🚀 ✅ Deployment complete! 🎉 ✨ 🚀 ✅')
+}
+
+const deployMigrateAction: NewTaskActionFunction<DeployMigrateArgs> = async (args, hre) => {
+  const step: number = args.step
+  const patchConfigFlag: boolean = args.patchConfig
+
+  await buildProductionArtifacts(hre)
+
+  const connection = await hre.network.create()
+  const { ethers, ignition } = connection
+  const graph = await connection.graph()
+  if (!args.hideBanner) {
+    printHorizonBanner()
+  }
+
+  // Migration step to run
+  console.log('\n========== 🏗️ Migration steps ==========')
+  const validSteps = [1, 2, 3, 4]
+  if (!validSteps.includes(step)) {
+    console.error(`Error: Invalid migration step provided: ${step}`)
+    console.error(`Valid steps are: ${validSteps.join(', ')}`)
+    process.exit(1)
+  }
+  console.log(`Running migration step: ${step}`)
+
+  // Load configuration for the migration
+  console.log('\n========== ⚙️ Deployment configuration ==========')
+  const { config: HorizonMigrateConfig, file } = loadConfig(
+    './ignition/configs/',
+    'migrate',
+    args.horizonConfig ?? connection.networkName,
   )
-  .addOptionalParam('step', 'Migration step to run (1, 2, 3 or 4)', undefined, types.int)
-  .addOptionalParam('accountIndex', 'Derivation path index for the account to use', 0, types.int)
-  .addFlag('patchConfig', 'Patch configuration file using address book values - does not save changes')
-  .addFlag('standalone', 'Deploy horizon contracts in standalone mode - subgraph service hardcoded as zero address')
-  .addFlag('hideBanner', 'Hide the banner display')
-  .setAction(async (args, hre: HardhatRuntimeEnvironment) => {
-    // Task parameters
-    const step: number = args.step ?? 0
-    const patchConfig: boolean = args.patchConfig ?? false
+  console.log(`Loaded migration configuration from ${file}`)
 
-    const graph = hre.graph()
-    if (!args.hideBanner) {
-      printHorizonBanner()
-    }
+  // Display the deployer
+  console.log('\n========== 🔑 Deployer account ==========')
+  const deployer = await graph.accounts.getDeployer(args.accountIndex)
+  console.log('Using deployer account:', deployer.address)
+  const balance = await ethers.provider.getBalance(deployer.address)
+  console.log('Deployer balance:', ethers.formatEther(balance), 'ETH')
+  if (balance === 0n) {
+    console.error('Error: Deployer account has no ETH balance')
+    process.exit(1)
+  }
 
-    // Migration step to run
-    console.log('\n========== 🏗️ Migration steps ==========')
-    const validSteps = [1, 2, 3, 4]
-    if (!validSteps.includes(step)) {
-      console.error(`Error: Invalid migration step provided: ${step}`)
-      console.error(`Valid steps are: ${validSteps.join(', ')}`)
-      process.exit(1)
-    }
-    console.log(`Running migration step: ${step}`)
+  // Run migration step
+  console.log(`\n========== 🚧 Running migration: step ${step} ==========`)
+  const parameters = patchConfigFlag
+    ? _patchStepConfig(
+        step,
+        HorizonMigrateConfig,
+        graph.horizon.addressBook,
+        graph.subgraphService?.addressBook,
+        args.standalone,
+      )
+    : HorizonMigrateConfig
+  const MigrationModule = (await import(`../ignition/modules/migrate/migrate-${step}.js`)).default
+  const deployment = await ignition.deploy(MigrationModule, {
+    displayUi: true,
+    parameters,
+    deploymentId: `horizon-${connection.networkName}`,
+    defaultSender: deployer.address,
+  })
 
-    // Load configuration for the migration
-    console.log('\n========== ⚙️ Deployment configuration ==========')
-    const { config: HorizonMigrateConfig, file } = loadConfig(
-      './ignition/configs/',
-      'migrate',
-      args.horizonConfig ?? hre.network.name,
-    )
-    console.log(`Loaded migration configuration from ${file}`)
-
-    // Display the deployer -- this also triggers the secure accounts prompt if being used
-    console.log('\n========== 🔑 Deployer account ==========')
-    const deployer = await graph.accounts.getDeployer(args.accountIndex)
-    console.log('Using deployer account:', deployer.address)
-    const balance = await hre.ethers.provider.getBalance(deployer.address)
-    console.log('Deployer balance:', hre.ethers.formatEther(balance), 'ETH')
-    if (balance === 0n) {
-      console.error('Error: Deployer account has no ETH balance')
-      process.exit(1)
-    }
-
-    // Run migration step
-    console.log(`\n========== 🚧 Running migration: step ${step} ==========`)
-    const MigrationModule = require(`../ignition/modules/migrate/migrate-${step}`).default
-    const deployment = await hre.ignition.deploy(MigrationModule, {
+  // Step 4 also registers the dispute manager on the controller. That requires a
+  // non-zero address, which only exists when the subgraph service is deployed, so
+  // it is skipped in standalone mode.
+  if (step === 4 && !args.standalone) {
+    console.log(`\n========== 🚧 Registering DisputeManager on Controller ==========`)
+    const DisputeManagerModule = (await import('../ignition/modules/migrate/migrate-4-dispute-manager.js')).default
+    await ignition.deploy(DisputeManagerModule, {
       displayUi: true,
-      parameters: patchConfig
-        ? _patchStepConfig(
-            step,
-            HorizonMigrateConfig,
-            graph.horizon.addressBook,
-            graph.subgraphService?.addressBook,
-            args.standalone,
-          )
-        : HorizonMigrateConfig,
-      deploymentId: `horizon-${hre.network.name}`,
+      parameters,
+      deploymentId: `horizon-${connection.networkName}`,
       defaultSender: deployer.address,
     })
+  }
 
-    // Update address book
-    console.log('\n========== 📖 Updating address book ==========')
-    // @ts-expect-error - @graphprotocol/toolshed/hardhat exports ts files so types mismatch here
-    saveToAddressBook(deployment, graph.horizon.addressBook)
-    console.log(`Address book at ${graph.horizon.addressBook.file} updated!`)
+  // Update address book
+  console.log('\n========== 📖 Updating address book ==========')
+  saveToAddressBook(deployment, graph.horizon.addressBook)
+  console.log(`Address book at ${graph.horizon.addressBook.file} updated!`)
 
-    console.log(`\n\n🎉 ✨ 🚀 ✅ Migration step ${step} complete! 🎉 ✨ 🚀 ✅\n`)
+  console.log(`\n\n🎉 ✨ 🚀 ✅ Migration step ${step} complete! 🎉 ✨ 🚀 ✅\n`)
+}
+
+export const deployProtocolTask = task(
+  'deploy:protocol',
+  'Deploy a new version of the Graph Protocol Horizon contracts - no data services deployed',
+)
+  .addOption({
+    name: 'horizonConfig',
+    description:
+      'Name of the Horizon configuration file to use. Format is "protocol.<name>.json5", file must be in the "ignition/configs/" directory. Defaults to network name.',
+    type: ArgumentType.STRING_WITHOUT_DEFAULT,
+    defaultValue: undefined,
   })
+  .addOption({
+    name: 'accountIndex',
+    description: 'Derivation path index for the account to use',
+    type: ArgumentType.INT,
+    defaultValue: 0,
+  })
+  .setAction(async () => ({ default: deployProtocolAction }))
+  .build()
+
+export const deployMigrateTask = task(
+  'deploy:migrate',
+  'Upgrade an existing version of the Graph Protocol v1 to Horizon - no data services deployed',
+)
+  .addOption({
+    name: 'horizonConfig',
+    description:
+      'Name of the Horizon configuration file to use. Format is "migrate.<name>.json5", file must be in the "ignition/configs/" directory. Defaults to network name.',
+    type: ArgumentType.STRING_WITHOUT_DEFAULT,
+    defaultValue: undefined,
+  })
+  .addOption({
+    name: 'step',
+    description: 'Migration step to run (1, 2, 3 or 4)',
+    type: ArgumentType.INT,
+    defaultValue: 0,
+  })
+  .addOption({
+    name: 'accountIndex',
+    description: 'Derivation path index for the account to use',
+    type: ArgumentType.INT,
+    defaultValue: 0,
+  })
+  .addFlag({
+    name: 'patchConfig',
+    description: 'Patch configuration file using address book values - does not save changes',
+  })
+  .addFlag({
+    name: 'standalone',
+    description: 'Deploy horizon contracts in standalone mode - subgraph service hardcoded as zero address',
+  })
+  .addFlag({
+    name: 'hideBanner',
+    description: 'Hide the banner display',
+  })
+  .setAction(async () => ({ default: deployMigrateAction }))
+  .build()
 
 // This function patches the Ignition configuration object using an address book to fill in the gaps
 // The resulting configuration is not saved back to the configuration file

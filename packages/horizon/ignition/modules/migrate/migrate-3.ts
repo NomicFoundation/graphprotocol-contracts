@@ -1,7 +1,7 @@
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
 
-import { MigrateHorizonCoreModule } from '../core/core'
-import { MigratePeripheryModule } from '../periphery/periphery'
+import { MigrateHorizonCoreModule } from '../core/core.js'
+import { MigratePeripheryModule } from '../periphery/periphery.js'
 
 export default buildModule('GraphHorizon_Migrate_3', (m) => {
   const {

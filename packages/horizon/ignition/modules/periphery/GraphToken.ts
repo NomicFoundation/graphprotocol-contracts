@@ -1,10 +1,10 @@
 import GraphTokenArtifact from '@graphprotocol/contracts/artifacts/contracts/l2/token/L2GraphToken.sol/L2GraphToken.json'
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
 
-import GraphProxyAdminModule from '../periphery/GraphProxyAdmin'
-import GraphTokenGatewayModule from '../periphery/GraphTokenGateway'
-import RewardsManagerModule from '../periphery/RewardsManager'
-import { deployWithGraphProxy } from '../proxy/GraphProxy'
+import GraphProxyAdminModule from '../periphery/GraphProxyAdmin.js'
+import GraphTokenGatewayModule from '../periphery/GraphTokenGateway.js'
+import RewardsManagerModule from '../periphery/RewardsManager.js'
+import { deployWithGraphProxy } from '../proxy/GraphProxy.js'
 
 export default buildModule('L2GraphToken', (m) => {
   const { GraphProxyAdmin } = m.useModule(GraphProxyAdminModule)

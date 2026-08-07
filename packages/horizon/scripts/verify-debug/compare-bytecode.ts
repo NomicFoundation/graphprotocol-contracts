@@ -1,7 +1,9 @@
 // scripts/compare-bytecode.ts
 import fs from 'node:fs'
 
-import { ethers } from 'hardhat'
+import { network } from 'hardhat'
+
+const { ethers } = await network.create()
 
 function stripCborRuntime(code: string) {
   // Deployed runtime bytecode ends with a CBOR-encoded metadata whose byte length is stored in the final 2 bytes.

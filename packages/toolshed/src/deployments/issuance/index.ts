@@ -1,13 +1,13 @@
-import type { HardhatEthersProvider } from '@nomicfoundation/hardhat-ethers/internal/hardhat-ethers-provider'
+import type { HardhatEthersProvider } from '@nomicfoundation/hardhat-ethers/types'
 import type { Provider, Signer } from 'ethers'
 
-import { resolveAddressBook } from '../../lib/resolve'
-import { GraphIssuanceAddressBook } from './address-book'
-import type { GraphIssuanceContracts } from './contracts'
+import { resolveAddressBook } from '../../lib/resolve.js'
+import { GraphIssuanceAddressBook } from './address-book.js'
+import type { GraphIssuanceContracts } from './contracts.js'
 
-export { GraphIssuanceAddressBook } from './address-book'
-export type { GraphIssuanceContractName, GraphIssuanceContracts } from './contracts'
-export { GraphIssuanceContractNameList } from './contracts'
+export { GraphIssuanceAddressBook } from './address-book.js'
+export type { GraphIssuanceContractName, GraphIssuanceContracts } from './contracts.js'
+export { GraphIssuanceContractNameList } from './contracts.js'
 
 export function loadGraphIssuance(addressBookPath: string, chainId: number, provider: HardhatEthersProvider) {
   const addressBook = new GraphIssuanceAddressBook(addressBookPath, chainId)
@@ -23,7 +23,7 @@ export function connectGraphIssuance(
   signerOrProvider: Signer | Provider,
   addressBookPath?: string,
 ): GraphIssuanceContracts {
-  addressBookPath = addressBookPath ?? resolveAddressBook(require, '@graphprotocol/issuance/addresses.json')
+  addressBookPath = addressBookPath ?? resolveAddressBook(import.meta, '@graphprotocol/issuance/addresses.json')
   if (!addressBookPath) {
     throw new Error('Address book path not found')
   }

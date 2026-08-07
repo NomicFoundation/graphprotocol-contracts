@@ -1,1 +1,1 @@
-export * from '../scripts/utils/addInterfaceIds'
+export * from '../scripts/utils/addInterfaceIds.js'

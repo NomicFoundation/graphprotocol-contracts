@@ -2,7 +2,9 @@
 import fs from 'node:fs'
 
 import { Interface } from 'ethers'
-import { ethers } from 'hardhat'
+import { network } from 'hardhat'
+
+const { ethers } = await network.create()
 
 async function main() {
   const fqn = process.env.FQN // "contracts/payments/GraphPayments.sol:GraphPayments";

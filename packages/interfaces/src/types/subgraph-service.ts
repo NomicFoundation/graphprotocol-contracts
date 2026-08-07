@@ -6,7 +6,7 @@ import type {
   IServiceRegistryToolshed,
   ISubgraphNFT,
   ISubgraphServiceToolshed,
-} from '../../types'
+} from '../../types/index.js'
 
 // These are just type re-declarations to keep naming conventions consistent
 export {

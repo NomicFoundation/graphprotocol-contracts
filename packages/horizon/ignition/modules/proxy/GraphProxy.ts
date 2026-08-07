@@ -6,8 +6,8 @@ import {
   IgnitionModuleBuilder,
 } from '@nomicfoundation/ignition-core'
 
-import { deployImplementation, type ImplementationMetadata } from './implementation'
-import { loadProxyWithABI } from './utils'
+import { deployImplementation, type ImplementationMetadata } from './implementation.js'
+import { loadProxyWithABI } from './utils.js'
 
 export function deployGraphProxy(
   m: IgnitionModuleBuilder,

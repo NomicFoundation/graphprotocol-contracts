@@ -1,11 +1,10 @@
-import type { HardhatEthersProvider } from '@nomicfoundation/hardhat-ethers/internal/hardhat-ethers-provider'
-import type { HardhatRuntimeEnvironment } from 'hardhat/types'
+import type { HardhatEthersProvider } from '@nomicfoundation/hardhat-ethers/types'
 
-const localNetworks = ['localhost', 'hardhat', 'localNetwork']
+const localNetworks = ['localhost', 'localNetwork', 'node', 'default']
 
-export function requireLocalNetwork(hre: HardhatRuntimeEnvironment) {
-  if (!localNetworks.includes(hre.network.name)) {
-    throw new Error(`Network ${hre.network.name} is not a local network.`)
+export function requireLocalNetwork(networkName: string) {
+  if (!localNetworks.includes(networkName)) {
+    throw new Error(`Network ${networkName} is not a local network.`)
   }
 }
 

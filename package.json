@@ -62,6 +62,20 @@
           "@ethereum-waffle/chai": "*",
           "@ethereum-waffle/provider": "*"
         }
+      },
+      "@openzeppelin/foundry-upgrades": {
+        "peerDependencies": {
+          "@openzeppelin/contracts": "*",
+          "@openzeppelin/contracts-upgradeable": "*"
+        },
+        "peerDependenciesMeta": {
+          "@openzeppelin/contracts": {
+            "optional": true
+          },
+          "@openzeppelin/contracts-upgradeable": {
+            "optional": true
+          }
+        }
       }
     },
     "patchedDependencies": {

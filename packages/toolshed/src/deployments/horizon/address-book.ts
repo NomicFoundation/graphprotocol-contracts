@@ -3,12 +3,12 @@ import { getInterface } from '@graphprotocol/interfaces'
 import { Provider, Signer } from 'ethers'
 import { Contract } from 'ethers'
 
-import { assertObject } from '../../lib/assert'
-import { logDebug, logError } from '../../lib/logger'
-import { AddressBook } from '../address-book'
-import { wrapTransactionCalls } from '../tx-logging'
-import type { GraphHorizonContractName, GraphHorizonContracts } from './contracts'
-import { GraphHorizonContractNameList } from './contracts'
+import { assertObject } from '../../lib/assert.js'
+import { logDebug, logError } from '../../lib/logger.js'
+import { AddressBook } from '../address-book.js'
+import { wrapTransactionCalls } from '../tx-logging.js'
+import type { GraphHorizonContractName, GraphHorizonContracts } from './contracts.js'
+import { GraphHorizonContractNameList } from './contracts.js'
 
 export class GraphHorizonAddressBook extends AddressBook<number, GraphHorizonContractName> {
   isContractName(name: unknown): name is GraphHorizonContractName {

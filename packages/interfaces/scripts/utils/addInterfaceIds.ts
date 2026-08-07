@@ -196,7 +196,7 @@ export function addInterfaceIds(factoriesDir: string): void {
 }
 
 // CLI entry point
-if (require.main === module) {
+if (process.argv[1] === import.meta.filename) {
   const factoriesDir = process.argv[2]
   if (!factoriesDir) {
     console.error('Usage: addInterfaceIds.ts <factories-dir>')

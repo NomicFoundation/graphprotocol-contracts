@@ -1,29 +1,29 @@
 // To extend one of Hardhat's types, you need to import the module where it has been defined, and redeclare it.
 import 'hardhat/types/config'
-import 'hardhat/types/runtime'
+import 'hardhat/types/network'
 
-import type { GraphDeploymentOptions, GraphRuntimeEnvironment, GraphRuntimeEnvironmentOptions } from './types'
+import type { GraphDeploymentOptions, GraphRuntimeEnvironment, GraphRuntimeEnvironmentOptions } from './types.js'
 
-declare module 'hardhat/types/runtime' {
-  interface HardhatRuntimeEnvironment {
-    graph: (opts?: GraphRuntimeEnvironmentOptions) => GraphRuntimeEnvironment
+declare module 'hardhat/types/network' {
+  interface NetworkConnection {
+    graph: (opts?: GraphRuntimeEnvironmentOptions) => Promise<GraphRuntimeEnvironment>
   }
 }
 
 declare module 'hardhat/types/config' {
   interface HardhatConfig {
-    graph: GraphRuntimeEnvironmentOptions
+    graph?: GraphRuntimeEnvironmentOptions
   }
 
   interface HardhatUserConfig {
-    graph: GraphRuntimeEnvironmentOptions
+    graph?: GraphRuntimeEnvironmentOptions
   }
 
-  interface HardhatNetworkConfig {
+  interface EdrNetworkConfig {
     deployments?: GraphDeploymentOptions
   }
 
-  interface HardhatNetworkUserConfig {
+  interface EdrNetworkUserConfig {
     deployments?: GraphDeploymentOptions
   }
 
@@ -36,7 +36,7 @@ declare module 'hardhat/types/config' {
   }
 
   interface ProjectPathsConfig {
-    graph?: string
+    graph: string
   }
 
   interface ProjectPathsUserConfig {

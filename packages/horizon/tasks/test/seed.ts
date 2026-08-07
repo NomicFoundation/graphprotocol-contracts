@@ -3,17 +3,21 @@ import { delegators, indexers } from '@graphprotocol/toolshed/fixtures'
 import { requireLocalNetwork, setGRTBalance } from '@graphprotocol/toolshed/hardhat'
 import { printBanner } from '@graphprotocol/toolshed/utils'
 import { task } from 'hardhat/config'
+import type { NewTaskActionFunction } from 'hardhat/types/tasks'
 
-task('test:seed', 'Sets up some protocol state for testing').setAction(async (_, hre) => {
+const seedAction: NewTaskActionFunction = async (_, hre) => {
   printBanner('PROTOCOL STATE SETUP')
 
   console.log('\n--- STEP 0: Setup ---')
 
+  const connection = await hre.network.create()
+  const { ethers } = connection
+
   // this task uses impersonation so we NEED a local network
-  requireLocalNetwork(hre)
+  requireLocalNetwork(connection.networkName)
 
   // Get contracts
-  const graph = hre.graph()
+  const graph = await connection.graph()
   const GraphToken = graph.horizon.contracts.L2GraphToken
   const Staking = graph.horizon.contracts.LegacyStaking
 
@@ -23,7 +27,7 @@ task('test:seed', 'Sets up some protocol state for testing').setAction(async (_,
     await setGRTBalance(graph.provider, GraphToken.target, indexer.address, indexer.stake)
 
     // Impersonate the indexer
-    const indexerSigner = await hre.ethers.getImpersonatedSigner(indexer.address)
+    const indexerSigner = await ethers.getImpersonatedSigner(indexer.address)
 
     // Approve and stake
     console.log(`Staking ${indexer.stake} tokens for indexer ${indexer.address}...`)
@@ -52,7 +56,7 @@ task('test:seed', 'Sets up some protocol state for testing').setAction(async (_,
     )
 
     // Impersonate the delegator
-    const delegatorSigner = await hre.ethers.getImpersonatedSigner(delegator.address)
+    const delegatorSigner = await ethers.getImpersonatedSigner(delegator.address)
 
     // Delegate to each indexer
     for (const delegation of delegator.delegations) {
@@ -68,7 +72,7 @@ task('test:seed', 'Sets up some protocol state for testing').setAction(async (_,
   console.log('\n--- STEP 3: Creating Allocations ---')
   for (const indexer of indexers) {
     // Impersonate the indexer
-    const indexerSigner = await hre.ethers.getImpersonatedSigner(indexer.address)
+    const indexerSigner = await ethers.getImpersonatedSigner(indexer.address)
 
     for (const allocation of indexer.allocations) {
       console.log(
@@ -92,7 +96,7 @@ task('test:seed', 'Sets up some protocol state for testing').setAction(async (_,
       console.log(`Indexer ${indexer.address} is unstaking...`)
 
       // Impersonate the indexer
-      const indexerSigner = await hre.ethers.getImpersonatedSigner(indexer.address)
+      const indexerSigner = await ethers.getImpersonatedSigner(indexer.address)
 
       // Unstake
       await Staking.connect(indexerSigner).unstake(indexer.tokensToUnstake)
@@ -106,7 +110,7 @@ task('test:seed', 'Sets up some protocol state for testing').setAction(async (_,
       console.log(`Delegator ${delegator.address} is undelegating...`)
 
       // Impersonate the delegator
-      const delegatorSigner = await hre.ethers.getImpersonatedSigner(delegator.address)
+      const delegatorSigner = await ethers.getImpersonatedSigner(delegator.address)
 
       for (const delegation of delegator.delegations) {
         // Get the delegation information
@@ -122,4 +126,10 @@ task('test:seed', 'Sets up some protocol state for testing').setAction(async (_,
   }
 
   console.log('\n\n🎉 ✨ 🚀 ✅ Pre-upgrade state setup complete! 🎉 ✨ 🚀 ✅\n')
-})
+}
+
+const seedTask = task('test:seed', 'Sets up some protocol state for testing')
+  .setAction(async () => ({ default: seedAction }))
+  .build()
+
+export default seedTask

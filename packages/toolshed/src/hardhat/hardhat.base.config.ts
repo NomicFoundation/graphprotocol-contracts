@@ -1,16 +1,19 @@
-import { vars } from 'hardhat/config'
-import type { HardhatUserConfig, NetworksUserConfig, ProjectPathsUserConfig, SolcUserConfig } from 'hardhat/types'
+import type { HardhatUserConfig } from 'hardhat/config'
+import { configVariable } from 'hardhat/config'
+import type {
+  NetworkUserConfig,
+  ProjectPathsUserConfig,
+  SensitiveString,
+  SingleVersionSolidityUserConfig,
+} from 'hardhat/types/config'
 
-import { resolveAddressBook } from '../lib/resolve'
+import type { ModuleResolver } from '../lib/resolve.js'
+import { resolveAddressBook } from '../lib/resolve.js'
 
 // This base config file assumes the project is using the following hardhat plugins:
 // - hardhat-graph-protocol
-// - hardhat-secure-accounts
 // - hardhat-verify
 // To avoid adding those dependencies on toolshed we re-declare some types here
-interface SecureAccountsOptions {
-  enabled?: boolean
-}
 
 type GraphRuntimeEnvironmentOptions = {
   deployments?: {
@@ -22,26 +25,21 @@ type GraphRuntimeEnvironmentOptions = {
   }
 }
 
-interface EtherscanConfig {
-  apiKey: string | Record<string, string>
-  customChains: {
-    network: string
-    chainId: number
-    urls: {
-      apiURL: string
-      browserURL: string
-    }
-  }[]
-  enabled: boolean
+// Matches hardhat-verify's EtherscanUserConfig (nested under `verify.etherscan`)
+interface EtherscanUserConfig {
+  apiKey?: SensitiveString
+  enabled?: boolean
 }
 
-// Hardhat variables
-const ARBITRUM_ONE_RPC = vars.get('ARBITRUM_ONE_RPC', 'https://arb1.arbitrum.io/rpc')
-const ARBITRUM_SEPOLIA_RPC = vars.get('ARBITRUM_SEPOLIA_RPC', 'https://sepolia-rollup.arbitrum.io/rpc')
-const LOCAL_NETWORK_RPC = vars.get('LOCAL_NETWORK_RPC', 'http://chain:8545')
-const LOCALHOST_RPC = vars.get('LOCALHOST_RPC', 'http://localhost:8545')
+// RPC URLs with defaults
+const ARBITRUM_ONE_RPC = process.env.ARBITRUM_ONE_RPC || 'https://arb1.arbitrum.io/rpc'
+const ARBITRUM_SEPOLIA_RPC = process.env.ARBITRUM_SEPOLIA_RPC || 'https://sepolia-rollup.arbitrum.io/rpc'
+const LOCAL_NETWORK_RPC = process.env.LOCAL_NETWORK_RPC || 'http://chain:8545'
+const LOCALHOST_RPC = process.env.LOCALHOST_RPC || 'http://localhost:8545'
 
-export const solidityUserConfig: SolcUserConfig = {
+// Annotated with the single-version object variant (not the SolidityUserConfig
+// union) so consumers can spread it to extend settings like npmFilesToBuild
+export const solidityUserConfig: SingleVersionSolidityUserConfig = {
   version: '0.8.35',
   settings: {
     optimizer: {
@@ -60,115 +58,109 @@ export const projectPathsUserConfig: ProjectPathsUserConfig = {
 
 // Etherscan v2 API uses a single API key for all networks
 // See: https://docs.etherscan.io/etherscan-v2/getting-started/creating-an-account
-// Check keystore first (vars), then environment variables
-// Support both ETHERSCAN_API_KEY and ARBISCAN_API_KEY for compatibility
-const getEtherscanApiKey = (): string => {
-  if (vars.has('ETHERSCAN_API_KEY')) return vars.get('ETHERSCAN_API_KEY')
-  if (vars.has('ARBISCAN_API_KEY')) return vars.get('ARBISCAN_API_KEY')
-  return process.env.ETHERSCAN_API_KEY ?? process.env.ARBISCAN_API_KEY ?? ''
-}
-export const etherscanUserConfig: Partial<EtherscanConfig> = {
-  apiKey: getEtherscanApiKey(),
+// configVariable resolves lazily from the environment or the hardhat-keystore plugin
+export const etherscanUserConfig: EtherscanUserConfig = {
+  apiKey: configVariable('ETHERSCAN_API_KEY'),
 }
 
 // In general:
-// - "hardhat" is used for unit tests
-// - "localhost" is used for local development on a hardhat network or fork
+// - "default" is used for unit tests and in-process runs (no --network flag)
+// - "node" is the network served by `hardhat node`
+// - "localhost" is used to connect to a locally running node or fork
 // - "localNetwork" is used for testing in the local network environment
 type EnhancedNetworkConfig<T> = T & {
-  secureAccounts?: SecureAccountsOptions
   deployments?: {
     horizon?: string
     subgraphService?: string
   }
 }
 
-type BaseNetworksUserConfig = {
-  [K in keyof NetworksUserConfig]: EnhancedNetworkConfig<NetworksUserConfig[K]>
-}
-export const networksUserConfig = function (callerRequire: typeof require): BaseNetworksUserConfig {
+// Hardhat auto-injects the "default" and "node" networks with stock test accounts;
+// defining them here overrides their accounts with the protocol mnemonic so role
+// accounts (deployer, governor, ...) derive from the conventional indexes
+const simulatedNetworkConfig = function (
+  resolver: ModuleResolver,
+  addressBookFile: string,
+): EnhancedNetworkConfig<NetworkUserConfig> {
   return {
-    hardhat: {
-      chainId: 31337,
-      hardfork: 'cancun',
-      accounts: {
-        mnemonic: 'myth like bonus scare over problem client lizard pioneer submit female collect',
-      },
-      deployments: {
-        horizon: resolveAddressBook(callerRequire, '@graphprotocol/horizon/addresses.json', 'addresses-hardhat.json'),
-        subgraphService: resolveAddressBook(
-          callerRequire,
-          '@graphprotocol/subgraph-service/addresses.json',
-          'addresses-hardhat.json',
-        ),
-      },
+    type: 'edr-simulated',
+    chainId: 31337,
+    hardfork: 'cancun',
+    accounts: {
+      mnemonic: 'myth like bonus scare over problem client lizard pioneer submit female collect',
     },
+    deployments: {
+      horizon: resolveAddressBook(resolver, '@graphprotocol/horizon/addresses.json', addressBookFile),
+      subgraphService: resolveAddressBook(resolver, '@graphprotocol/subgraph-service/addresses.json', addressBookFile),
+    },
+  }
+}
+
+type BaseNetworksUserConfig = Record<string, EnhancedNetworkConfig<NetworkUserConfig>>
+export const networksUserConfig = function (resolver: ModuleResolver): BaseNetworksUserConfig {
+  return {
+    default: simulatedNetworkConfig(resolver, 'addresses-default.json'),
+    node: simulatedNetworkConfig(resolver, 'addresses-node.json'),
     localNetwork: {
+      type: 'http',
       chainId: 1337,
       url: LOCAL_NETWORK_RPC,
       deployments: {
-        horizon: resolveAddressBook(
-          callerRequire,
-          '@graphprotocol/horizon/addresses.json',
-          'addresses-local-network.json',
-        ),
+        horizon: resolveAddressBook(resolver, '@graphprotocol/horizon/addresses.json', 'addresses-local-network.json'),
         subgraphService: resolveAddressBook(
-          callerRequire,
+          resolver,
           '@graphprotocol/subgraph-service/addresses.json',
           'addresses-local-network.json',
         ),
       },
     },
     localhost: {
+      type: 'http',
       chainId: 31337,
       url: LOCALHOST_RPC,
-      secureAccounts: {
-        enabled: true,
-      },
       deployments: {
-        horizon: resolveAddressBook(callerRequire, '@graphprotocol/horizon/addresses.json', 'addresses-localhost.json'),
+        horizon: resolveAddressBook(resolver, '@graphprotocol/horizon/addresses.json', 'addresses-localhost.json'),
         subgraphService: resolveAddressBook(
-          callerRequire,
+          resolver,
           '@graphprotocol/subgraph-service/addresses.json',
           'addresses-localhost.json',
         ),
       },
     },
     arbitrumOne: {
+      type: 'http',
       chainId: 42161,
       url: ARBITRUM_ONE_RPC,
-      secureAccounts: {
-        enabled: true,
-      },
+      accounts: [configVariable('DEPLOYER_PRIVATE_KEY')],
     },
     arbitrumSepolia: {
+      type: 'http',
       chainId: 421614,
       url: ARBITRUM_SEPOLIA_RPC,
-      secureAccounts: {
-        enabled: true,
-      },
+      accounts: [configVariable('DEPLOYER_PRIVATE_KEY')],
     },
   }
 }
 
-type BaseHardhatConfig = HardhatUserConfig & { etherscan: Partial<EtherscanConfig> } & {
+type BaseHardhatConfig = Omit<HardhatUserConfig, 'solidity'> & {
+  solidity: SingleVersionSolidityUserConfig
+  verify: { etherscan: EtherscanUserConfig }
   graph: GraphRuntimeEnvironmentOptions
-} & { secureAccounts: SecureAccountsOptions }
-export const hardhatBaseConfig = function (callerRequire: typeof require): BaseHardhatConfig {
+}
+export const hardhatBaseConfig = function (resolver: ModuleResolver): BaseHardhatConfig {
   return {
     solidity: solidityUserConfig,
     paths: projectPathsUserConfig,
-    secureAccounts: {
-      enabled: false,
-    },
-    networks: networksUserConfig(callerRequire),
+    networks: networksUserConfig(resolver),
     graph: {
       deployments: {
-        horizon: resolveAddressBook(callerRequire, '@graphprotocol/horizon/addresses.json'),
-        subgraphService: resolveAddressBook(callerRequire, '@graphprotocol/subgraph-service/addresses.json'),
+        horizon: resolveAddressBook(resolver, '@graphprotocol/horizon/addresses.json'),
+        subgraphService: resolveAddressBook(resolver, '@graphprotocol/subgraph-service/addresses.json'),
       },
     },
-    etherscan: etherscanUserConfig,
+    verify: {
+      etherscan: etherscanUserConfig,
+    },
   }
 }
 

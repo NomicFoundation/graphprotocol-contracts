@@ -1,14 +1,14 @@
-import type { HardhatEthersProvider } from '@nomicfoundation/hardhat-ethers/internal/hardhat-ethers-provider'
+import type { HardhatEthersProvider } from '@nomicfoundation/hardhat-ethers/types'
 import type { Provider, Signer } from 'ethers'
 
-import { resolveAddressBook } from '../../lib/resolve'
-import { loadActions } from './actions'
-import { GraphHorizonAddressBook } from './address-book'
-import type { GraphHorizonContracts } from './contracts'
+import { resolveAddressBook } from '../../lib/resolve.js'
+import { loadActions } from './actions.js'
+import { GraphHorizonAddressBook } from './address-book.js'
+import type { GraphHorizonContracts } from './contracts.js'
 
-export { GraphHorizonAddressBook } from './address-book'
-export type { GraphHorizonContractName, GraphHorizonContracts } from './contracts'
-export { GraphHorizonContractNameList } from './contracts'
+export { GraphHorizonAddressBook } from './address-book.js'
+export type { GraphHorizonContractName, GraphHorizonContracts } from './contracts.js'
+export { GraphHorizonContractNameList } from './contracts.js'
 
 export function loadGraphHorizon(addressBookPath: string, chainId: number, provider: HardhatEthersProvider) {
   const addressBook = new GraphHorizonAddressBook(addressBookPath, chainId)
@@ -25,7 +25,8 @@ export function connectGraphHorizon(
   signerOrProvider: Signer | Provider,
   addressBookPath?: string,
 ): GraphHorizonContracts {
-  addressBookPath = addressBookPath ?? resolveAddressBook(require, '@graphprotocol/address-book/horizon/addresses.json')
+  addressBookPath =
+    addressBookPath ?? resolveAddressBook(import.meta, '@graphprotocol/address-book/horizon/addresses.json')
   if (!addressBookPath) {
     throw new Error('Address book path not found')
   }

@@ -1,6 +1,7 @@
 {
   "name": "@graphprotocol/toolshed",
   "version": "1.2.2",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },
@@ -28,8 +29,8 @@
       "default": "./dist/fixtures/index.js"
     },
     "./hardhat": {
-      "types": "./src/hardhat/index.ts",
-      "default": "./src/hardhat/index.ts"
+      "types": "./dist/hardhat/index.d.ts",
+      "default": "./dist/hardhat/index.js"
     },
     "./utils": {
       "types": "./dist/utils/index.d.ts",
@@ -61,11 +62,10 @@
     "@graphprotocol/address-book": "workspace:^",
     "@graphprotocol/interfaces": "workspace:^",
     "@graphprotocol/issuance": "workspace:^",
-    "@nomicfoundation/hardhat-ethers": "catalog:",
+    "@nomicfoundation/hardhat-ethers": "^4.0.14",
     "debug": "^4.4.0",
     "ethers": "catalog:",
-    "glob": "^11.0.1",
-    "hardhat": "catalog:",
+    "hardhat": "^3.11.0",
     "json5": "^2.2.3"
   },
   "devDependencies": {

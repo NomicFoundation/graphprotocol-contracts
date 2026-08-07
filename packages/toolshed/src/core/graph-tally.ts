@@ -1,6 +1,6 @@
 import { BytesLike, ethers, Signature, Wallet } from 'ethers'
 
-import type { RAV } from './types'
+import type { RAV } from './types.js'
 
 export const EIP712_DOMAIN_NAME = 'GraphTallyCollector'
 export const EIP712_DOMAIN_VERSION = '1'

@@ -1,7 +1,10 @@
 import { AddressBookEntry } from '@graphprotocol/toolshed/deployments'
 import { assert, expect } from 'chai'
 import { zeroPadValue } from 'ethers'
-import hre from 'hardhat'
+
+import { connection } from './connection.js'
+
+const { ethers } = connection
 
 export function transparentUpgradeableProxyTests(
   contractName: string,
@@ -16,7 +19,7 @@ export function transparentUpgradeableProxyTests(
       if (!addressBookEntry.implementation) {
         assert.fail('Implementation address is not set')
       }
-      const initialized = await hre.ethers.provider.getStorage(
+      const initialized = await ethers.provider.getStorage(
         addressBookEntry.implementation,
         '0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00',
       )
@@ -27,7 +30,7 @@ export function transparentUpgradeableProxyTests(
   describe(`${contractName}: TransparentUpgradeableProxy`, function () {
     testIf()('should be initialized', async function () {
       // https://github.com/OpenZeppelin/openzeppelin-contracts/blob/dbb6104ce834628e473d2173bbc9d47f81a9eec3/contracts/proxy/utils/Initializable.sol#L77
-      const initialized = await hre.ethers.provider.getStorage(
+      const initialized = await ethers.provider.getStorage(
         addressBookEntry.address,
         '0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00',
       )
@@ -36,7 +39,7 @@ export function transparentUpgradeableProxyTests(
 
     testIf()('should target the correct implementation', async function () {
       // https:// github.com/OpenZeppelin/openzeppelin-contracts/blob/dbb6104ce834628e473d2173bbc9d47f81a9eec3/contracts/proxy/ERC1967/ERC1967Utils.sol#L37C53-L37C119
-      const implementation = await hre.ethers.provider.getStorage(
+      const implementation = await ethers.provider.getStorage(
         addressBookEntry.address,
         '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc',
       )
@@ -48,7 +51,7 @@ export function transparentUpgradeableProxyTests(
 
     it('should be owned by the proxy admin', async function () {
       // https://github.com/OpenZeppelin/openzeppelin-contracts/blob/dbb6104ce834628e473d2173bbc9d47f81a9eec3/contracts/proxy/ERC1967/ERC1967Utils.sol#L99
-      const admin = await hre.ethers.provider.getStorage(
+      const admin = await ethers.provider.getStorage(
         addressBookEntry.address,
         '0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103',
       )
@@ -67,7 +70,7 @@ export function transparentUpgradeableProxyTests(
       if (!addressBookEntry.proxyAdmin) {
         assert.fail('Proxy admin address is not set')
       }
-      const ownerStorage = await hre.ethers.provider.getStorage(addressBookEntry.proxyAdmin, 0)
+      const ownerStorage = await ethers.provider.getStorage(addressBookEntry.proxyAdmin, 0)
       expect(ownerStorage).to.equal(zeroPadValue(owner, 32))
     })
   })

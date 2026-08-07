@@ -3,11 +3,11 @@ import SubgraphNFTDescriptorArtifact from '@graphprotocol/contracts/artifacts/co
 import L2GNSArtifact from '@graphprotocol/contracts/artifacts/contracts/l2/discovery/L2GNS.sol/L2GNS.json'
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
 
-import { deployWithGraphProxy } from '../proxy/GraphProxy'
-import ControllerModule from './Controller'
-import CurationModule from './Curation'
-import GraphProxyAdminModule from './GraphProxyAdmin'
-import GraphTokenModule from './GraphToken'
+import { deployWithGraphProxy } from '../proxy/GraphProxy.js'
+import ControllerModule from './Controller.js'
+import CurationModule from './Curation.js'
+import GraphProxyAdminModule from './GraphProxyAdmin.js'
+import GraphTokenModule from './GraphToken.js'
 
 // GNS deployment should be managed by ignition scripts in subgraph-service package however
 // due to tight coupling with Controller it's easier to do it on the horizon package.

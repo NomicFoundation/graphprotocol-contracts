@@ -1,15 +1,15 @@
 import { loadConfig } from '@graphprotocol/toolshed/hardhat'
 import { expect } from 'chai'
-import hre from 'hardhat'
 
-import { testIf } from './lib/testIf'
+import { connection } from './lib/connection.js'
+import { testIf } from './lib/testIf.js'
 
 const config = loadConfig(
   './ignition/configs/',
   'migrate',
-  String(process.env.TEST_DEPLOYMENT_CONFIG ?? hre.network.name),
+  String(process.env.TEST_DEPLOYMENT_CONFIG ?? connection.networkName),
 ).config
-const graph = hre.graph()
+const graph = await connection.graph()
 
 const GraphTallyCollector = graph.horizon.contracts.GraphTallyCollector
 

@@ -1,6 +1,6 @@
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules'
 
-import { MigrateHorizonProxiesDeployerModule } from '../core/HorizonProxies'
+import { MigrateHorizonProxiesDeployerModule } from '../core/HorizonProxies.js'
 
 export default buildModule('GraphHorizon_Migrate_1', (m) => {
   const { GraphPaymentsProxy, PaymentsEscrowProxy, GraphPaymentsProxyAdmin, PaymentsEscrowProxyAdmin } = m.useModule(

@@ -1,9 +1,9 @@
 import { expect } from 'chai'
-import hre from 'hardhat'
 
-import { graphProxyTests } from './lib/GraphProxy.test'
+import { connection } from './lib/connection.js'
+import { graphProxyTests } from './lib/GraphProxy.test.js'
 
-const graph = hre.graph()
+const graph = await connection.graph()
 
 const graphProxyAdminAddressBookEntry = graph.horizon.addressBook.getEntry('GraphProxyAdmin')
 const gnsAddressBookEntry = graph.horizon.addressBook.getEntry('L2GNS')

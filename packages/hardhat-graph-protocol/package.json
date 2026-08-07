@@ -1,6 +1,7 @@
 {
   "name": "hardhat-graph-protocol",
   "version": "0.2.6",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },
@@ -20,13 +21,13 @@
   "types": "./dist/src/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/types.ts",
+      "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
     }
   },
   "scripts": {
     "build": "pnpm build:dep && pnpm build:self",
-    "build:dep": "pnpm --filter '@graphprotocol/hardhat-graph-protocol^...' run build:self",
+    "build:dep": "pnpm --filter 'hardhat-graph-protocol^...' run build:self",
     "build:self": "tsc",
     "build:clean": "pnpm clean && pnpm build",
     "watch": "tsc --watch",
@@ -36,7 +37,7 @@
     "lint:md": "markdownlint --fix --ignore-path ../../.gitignore '**/*.md'; prettier -w --cache --log-level warn '**/*.md'",
     "lint:json": "prettier -w --cache --log-level warn '**/*.json'",
     "test": "pnpm build && pnpm test:self",
-    "test:self": "mocha --exit --recursive 'test/**/*.test.ts'",
+    "test:self": "NODE_OPTIONS='--import tsx' mocha --exit --recursive --timeout 6000 'test/**/*.test.ts'",
     "prepublishOnly": "pnpm run build"
   },
   "files": [
@@ -47,26 +48,23 @@
   ],
   "dependencies": {
     "@graphprotocol/toolshed": "workspace:^",
-    "@nomicfoundation/hardhat-ethers": "catalog:",
-    "debug": "^4.3.7",
-    "json5": "^2.2.3"
+    "@nomicfoundation/hardhat-ethers": "^4.0.14",
+    "debug": "^4.3.7"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-verify": "^2.0.12",
     "@types/chai": "^4.0.0",
     "@types/debug": "^4.1.12",
     "@types/mocha": "^10.0.9",
     "chai": "^4.0.0",
     "eslint": "catalog:",
     "ethers": "catalog:",
-    "hardhat": "catalog:",
-    "hardhat-secure-accounts": "^1.0.4",
+    "hardhat": "^3.11.0",
     "mocha": "^10.8.2",
-    "ts-node": "^8.0.0",
+    "tsx": "^4.19.0",
     "typescript": "catalog:"
   },
   "peerDependencies": {
     "ethers": "catalog:",
-    "hardhat": "catalog:"
+    "hardhat": "^3.11.0"
   }
 }
