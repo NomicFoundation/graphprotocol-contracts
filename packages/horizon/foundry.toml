@@ -23,5 +23,4 @@ ignored_warnings_from = ["node_modules"]
 # literal IDs that trigger spurious unsafe-typecast warnings. `pnpm lint:forge` (scoped to
 # contracts/) remains the canonical lint path for production code.
 lint_on_build = false
-ignore = ["contracts/mocks/imports.sol"]
 exclude_lints = ["mixed-case-function", "mixed-case-variable", "block-timestamp"]

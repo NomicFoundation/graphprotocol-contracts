@@ -68,13 +68,11 @@ coverage/
 reports/
 coverage.json
 lcov.info
-hardhat-dependency-compiler/
 
 # Local test files
 localNetwork.json
 arbitrum-addresses-local.json
 addresses-fork.json
-addresses-hardhat.json
 addresses-default.json
 addresses-node.json
 addresses-local*.json
@@ -97,17 +95,14 @@ tx-builder-*.json
 
 # Hardhat Ignition
 **/ignition/deployments/*-localhost/
-**/ignition/deployments/*-hardhat/
 **/ignition/deployments/*-31337/
 **/ignition/deployments/*-1337/
 **/chain-31337/
 **/chain-1377/
 **/horizon-localhost/
-**/horizon-hardhat/
 **/horizon-default/
 **/horizon-node/
 **/subgraph-service-localhost/
-**/subgraph-service-hardhat/
 **/subgraph-service-default/
 **/subgraph-service-node/
 **/horizon-localNetwork/
